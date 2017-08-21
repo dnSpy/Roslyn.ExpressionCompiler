@@ -15,6 +15,7 @@
     <SignAssembly>True</SignAssembly>
     <AssemblyOriginatorKeyFile>..\..\..\dnSpy.Roslyn.Internal\RoslynInternalKey.Private.snk</AssemblyOriginatorKeyFile>
     <Features>strict</Features>
+    <LangVersion>latest</LangVersion>
     <DefineConstants>$(DefineConstants);EXPRESSIONCOMPILER</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -25,7 +26,6 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
