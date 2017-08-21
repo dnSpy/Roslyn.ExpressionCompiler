@@ -13,7 +13,7 @@
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SignAssembly>True</SignAssembly>
-    <AssemblyOriginatorKeyFile>..\..\RoslynInternalKey.Private.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>..\..\..\dnSpy.Roslyn.Internal\RoslynInternalKey.Private.snk</AssemblyOriginatorKeyFile>
     <Features>strict</Features>
     <DefineConstants>$(DefineConstants);EXPRESSIONCOMPILER</DefineConstants>
   </PropertyGroup>
