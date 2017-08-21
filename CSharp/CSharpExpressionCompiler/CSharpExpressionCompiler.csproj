@@ -62,11 +62,11 @@
     <Compile Include="CSharpLocalAndMethod.cs" />
     <Compile Include="CompilationContext.cs" />
     <Compile Include="CompilationExtensions.cs" />
-    <Compile Include="CSharpLanguageInstructionDecoder.cs" />
+    <None Include="CSharpLanguageInstructionDecoder.cs" />
     <Compile Include="CSharpMetadataContext.cs" />
-    <Compile Include="CSharpExpressionCompiler.cs" />
-    <Compile Include="CSharpFrameDecoder.cs" />
-    <Compile Include="CSharpInstructionDecoder.cs" />
+    <None Include="CSharpExpressionCompiler.cs" />
+    <None Include="CSharpFrameDecoder.cs" />
+    <None Include="CSharpInstructionDecoder.cs" />
     <Compile Include="EEAssemblyBuilder.cs" />
     <Compile Include="EETypeNameDecoder.cs" />
     <Compile Include="EvaluationContext.cs" />

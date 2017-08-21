@@ -2,6 +2,7 @@
 
 Imports System.Collections.Immutable
 Imports System.Runtime.CompilerServices
+Imports Microsoft.CodeAnalysis.ExpressionEvaluator
 Imports Microsoft.CodeAnalysis.VisualBasic.Symbols
 Imports Roslyn.Utilities
 
@@ -26,6 +27,8 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
         Friend Sub New(container As Symbol, type As TypeSymbol)
             MyBase.New(container, type)
         End Sub
+
+        Friend MustOverride ReadOnly Property LocalAndMethodKind As LocalAndMethodKind
 
         Friend Overrides ReadOnly Property IsImportedFromMetadata As Boolean
             Get

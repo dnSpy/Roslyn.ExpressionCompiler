@@ -399,7 +399,7 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
                         {
                             var methodName = GetNextMethodName(methodBuilder);
                             var method = this.GetThisMethod(container, methodName);
-                            localBuilder.Add(new CSharpLocalAndMethod("this", "this", method, DkmClrCompilationResultFlags.None)); // Note: writable in dev11.
+                            localBuilder.Add(new CSharpLocalAndMethod("this", "this", method, DkmClrCompilationResultFlags.None, LocalAndMethodKind.This)); // Note: writable in dev11.
                             methodBuilder.Add(method);
                         }
                     }
@@ -461,7 +461,8 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
                                 ExpressionCompilerConstants.TypeVariablesLocalName,
                                 ExpressionCompilerConstants.TypeVariablesLocalName,
                                 method,
-                                DkmClrCompilationResultFlags.ReadOnlyResult));
+                                DkmClrCompilationResultFlags.ReadOnlyResult,
+                                LocalAndMethodKind.TypeVariables));
                             methodBuilder.Add(method);
                         }
                     }
@@ -516,7 +517,7 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
             var name = SyntaxHelpers.EscapeKeywordIdentifiers(parameter.Name);
             var methodName = GetNextMethodName(methodBuilder);
             var method = this.GetParameterMethod(container, methodName, name, parameterIndex);
-            localBuilder.Add(new CSharpLocalAndMethod(name, name, method, DkmClrCompilationResultFlags.None));
+            localBuilder.Add(new CSharpLocalAndMethod(name, name, method, DkmClrCompilationResultFlags.None, LocalAndMethodKind.Parameter));
             methodBuilder.Add(method);
         }
 
@@ -527,7 +528,7 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
             // which it can't do correctly without semantic information.
             var escapedName = SyntaxHelpers.EscapeKeywordIdentifiers(local.Name);
             var displayName = (local as PlaceholderLocalSymbol)?.DisplayName ?? escapedName;
-            return new CSharpLocalAndMethod(escapedName, displayName, method, flags);
+            return new CSharpLocalAndMethod(escapedName, displayName, method, flags, (local as EELocalSymbolBase)?.LocalAndMethodKind ?? LocalAndMethodKind.Local);
         }
 
         private static EEAssemblyBuilder CreateModuleBuilder(
@@ -1104,7 +1105,8 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
                         }
                     default:
                         {
-                            throw ExceptionUtilities.UnexpectedValue(importRecord.TargetKind);
+                            Debug.Fail($"Unsupported target kind: {importRecord.TargetKind}");
+                            break;
                         }
                 }
             }

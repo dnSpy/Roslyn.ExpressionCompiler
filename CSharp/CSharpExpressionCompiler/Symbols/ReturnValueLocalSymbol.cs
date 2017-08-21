@@ -16,6 +16,8 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
             _index = index;
         }
 
+        internal override LocalAndMethodKind LocalAndMethodKind => LocalAndMethodKind.ReturnValue;
+
         internal override bool IsWritable
         {
             get { return false; }

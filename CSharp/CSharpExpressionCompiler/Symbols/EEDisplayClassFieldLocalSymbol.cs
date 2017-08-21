@@ -4,6 +4,8 @@ using Microsoft.CodeAnalysis.CSharp.Symbols;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using Roslyn.Utilities;
+using Microsoft.CodeAnalysis.ExpressionEvaluator;
+using System;
 
 namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
 {
@@ -26,6 +28,24 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
         internal override EELocalSymbolBase ToOtherMethod(MethodSymbol method, TypeMap typeMap)
         {
             return new EEDisplayClassFieldLocalSymbol(_variable.ToOtherMethod(method, typeMap));
+        }
+
+        internal override LocalAndMethodKind LocalAndMethodKind
+        {
+            get
+            {
+                switch (_variable.Kind)
+                {
+                case DisplayClassVariableKind.Local:
+                    return LocalAndMethodKind.Local;
+                case DisplayClassVariableKind.Parameter:
+                    return LocalAndMethodKind.Parameter;
+                case DisplayClassVariableKind.This:
+                    return LocalAndMethodKind.This;
+                default:
+                    throw new InvalidOperationException();
+                }
+            }
         }
 
         public override string Name

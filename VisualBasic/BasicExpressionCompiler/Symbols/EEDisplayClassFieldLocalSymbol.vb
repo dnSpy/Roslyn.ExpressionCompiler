@@ -1,6 +1,7 @@
 ﻿' Copyright (c) Microsoft.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
 Imports System.Collections.Immutable
+Imports Microsoft.CodeAnalysis.ExpressionEvaluator
 Imports Microsoft.CodeAnalysis.VisualBasic.Symbols
 Imports Roslyn.Utilities
 
@@ -19,6 +20,21 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
 
             Me._variable = variable
         End Sub
+
+        Friend Overrides ReadOnly Property LocalAndMethodKind As LocalAndMethodKind
+            Get
+                Select Case _variable.Kind
+                    Case DisplayClassVariableKind.Local
+                        Return LocalAndMethodKind.Local
+                    Case DisplayClassVariableKind.Parameter
+                        Return LocalAndMethodKind.Parameter
+                    Case DisplayClassVariableKind.Me
+                        Return LocalAndMethodKind.This
+                    Case Else
+                        Throw New InvalidOperationException()
+                End Select
+            End Get
+        End Property
 
         Friend Overrides ReadOnly Property DeclarationKind As LocalDeclarationKind
             Get

@@ -10,7 +10,6 @@ using System.Reflection.Metadata;
 using Microsoft.CodeAnalysis.Debugging;
 using Microsoft.VisualStudio.Debugger;
 using Microsoft.VisualStudio.Debugger.Clr;
-using Microsoft.VisualStudio.Debugger.Clr.NativeCompilation;
 using Microsoft.VisualStudio.Debugger.Evaluation;
 using Microsoft.VisualStudio.Debugger.Evaluation.ClrCompilation;
 using Roslyn.Utilities;
@@ -21,6 +20,7 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator
     {
         internal unsafe delegate IntPtr GetMetadataBytesPtrFunction(AssemblyIdentity assemblyIdentity, out uint uSize);
 
+        /*
         // Return the set of managed module instances from the AppDomain.
         private static IEnumerable<DkmClrModuleInstance> GetModulesInAppDomain(this DkmClrRuntimeInstance runtime, DkmClrAppDomain appDomain)
         {
@@ -42,7 +42,9 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator
                     return !moduleAppDomain.IsUnloaded && (moduleAppDomain.Id == appDomainId);
                 });
         }
+        */
 
+        /*
         internal static ImmutableArray<MetadataBlock> GetMetadataBlocks(
             this DkmClrRuntimeInstance runtime, 
             DkmClrAppDomain appDomain, 
@@ -79,6 +81,7 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator
             builder.Add(GetMetadataBlock(previousMetadataBlocks, index, ptr, size));
             return builder.ToImmutableAndFree();
         }
+        */
 
         internal static ImmutableArray<MetadataBlock> GetMetadataBlocks(GetMetadataBytesPtrFunction getMetaDataBytesPtrFunction, ImmutableArray<AssemblyIdentity> missingAssemblyIdentities)
         {
@@ -107,6 +110,7 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator
             return builder == null ? ImmutableArray<MetadataBlock>.Empty : builder.ToImmutableAndFree();
         }
 
+        /*
         internal static ImmutableArray<AssemblyReaders> MakeAssemblyReaders(this DkmClrInstructionAddress instructionAddress)
         {
             var builder = ArrayBuilder<AssemblyReaders>.GetInstance();
@@ -137,6 +141,7 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator
             }
             return builder.ToImmutableAndFree();
         }
+        */
 
         private unsafe static MetadataBlock GetMetadataBlock(IntPtr ptr, uint size)
         {
@@ -161,6 +166,7 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator
             return GetMetadataBlock(ptr, size);
         }
 
+        /*
         internal static object GetSymReader(this DkmClrModuleInstance clrModule)
         {
             var module = clrModule.Module; // Null if there are no symbols.
@@ -173,7 +179,9 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator
             // latter does not handle .NET Native modules.
             return clrModule.GetSymUnmanagedReader();
         }
+        */
 
+        /*
         internal static DkmCompiledClrInspectionQuery ToQueryResult(
             this CompileResult compResult,
             DkmCompilerId languageId,
@@ -207,11 +215,14 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator
                 TypeModifierFlags: resultProperties.ModifierFlags,
                 CustomTypeInfo: customTypeInfo.ToCustomTypeInfo(customTypeInfoId));
         }
+        */
 
+        /*
         internal static DkmClrCustomTypeInfo ToCustomTypeInfo(this ReadOnlyCollection<byte> payload, Guid payloadTypeId)
         {
             return (payload == null) ? null : DkmClrCustomTypeInfo.Create(payloadTypeId, payload);
         }
+        */
 
         internal static ResultProperties GetResultProperties<TSymbol>(this TSymbol symbol, DkmClrCompilationResultFlags flags, bool isConstant)
             where TSymbol : ISymbol
@@ -289,30 +300,39 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator
             }
         }
 
+        /*
         internal static bool Includes(this DkmVariableInfoFlags flags, DkmVariableInfoFlags desired)
         {
             return (flags & desired) == desired;
         }
+        */
 
+        /*
         internal static TMetadataContext GetMetadataContext<TMetadataContext>(this DkmClrAppDomain appDomain)
             where TMetadataContext : struct
         {
             var dataItem = appDomain.GetDataItem<MetadataContextItem<TMetadataContext>>();
             return (dataItem == null) ? default(TMetadataContext) : dataItem.MetadataContext;
         }
+        */
 
+        /*
         internal static void SetMetadataContext<TMetadataContext>(this DkmClrAppDomain appDomain, TMetadataContext context)
             where TMetadataContext : struct
         {
             appDomain.SetDataItem(DkmDataCreationDisposition.CreateAlways, new MetadataContextItem<TMetadataContext>(context));
         }
+        */
 
+        /*
         internal static void RemoveMetadataContext<TMetadataContext>(this DkmClrAppDomain appDomain)
             where TMetadataContext : struct
         {
             appDomain.RemoveDataItem<MetadataContextItem<TMetadataContext>>();
         }
+        */
 
+        /*
         private sealed class MetadataContextItem<TMetadataContext> : DkmDataItem
             where TMetadataContext : struct
         {
@@ -323,5 +343,6 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator
                 this.MetadataContext = metadataContext;
             }
         }
+        */
     }
 }

@@ -9,13 +9,13 @@ using System.Reflection.Metadata;
 using System.Runtime.InteropServices;
 using Microsoft.CodeAnalysis.Collections;
 using Microsoft.CodeAnalysis.Debugging;
-using Microsoft.DiaSymReader;
 using Roslyn.Utilities;
 
 namespace Microsoft.CodeAnalysis.ExpressionEvaluator
 {
     internal partial class MethodDebugInfo<TTypeSymbol, TLocalSymbol>
     {
+        /*
         private struct LocalNameAndScope : IEquatable<LocalNameAndScope>
         {
             internal readonly string LocalName;
@@ -701,6 +701,7 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator
                 }
             }
         }
+        */
 
         /// <summary>
         /// Returns symbols for the locals emitted in the original method,

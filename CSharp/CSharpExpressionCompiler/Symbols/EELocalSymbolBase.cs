@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis.CSharp.Symbols;
+using Microsoft.CodeAnalysis.ExpressionEvaluator;
 using Roslyn.Utilities;
 
 namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
@@ -25,6 +26,8 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
     internal abstract class EELocalSymbolBase : LocalSymbol
     {
         internal static readonly ImmutableArray<Location> NoLocations = ImmutableArray.Create(NoLocation.Singleton);
+
+        internal abstract LocalAndMethodKind LocalAndMethodKind { get; }
 
         internal abstract EELocalSymbolBase ToOtherMethod(MethodSymbol method, TypeMap typeMap);
 

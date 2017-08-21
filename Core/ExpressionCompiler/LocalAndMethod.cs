@@ -16,15 +16,34 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator
         public readonly string LocalDisplayName;
         public readonly string MethodName;
         public readonly DkmClrCompilationResultFlags Flags;
+        public readonly LocalAndMethodKind Kind;
 
-        public LocalAndMethod(string localName, string localDisplayName, string methodName, DkmClrCompilationResultFlags flags)
+        public LocalAndMethod(string localName, string localDisplayName, string methodName, DkmClrCompilationResultFlags flags, LocalAndMethodKind kind)
         {
             this.LocalName = localName;
             this.LocalDisplayName = localDisplayName;
             this.MethodName = methodName;
             this.Flags = flags;
+            this.Kind = kind;
         }
 
         public abstract Guid GetCustomTypeInfo(out ReadOnlyCollection<byte> payload);
+    }
+
+    internal enum LocalAndMethodKind
+    {
+        Local,
+        Parameter,
+        This,
+        TypeVariables,
+        LocalConstant,
+        StaticLocal,
+        Exception,
+        StowedException,
+        ReturnValue,
+        ObjectId,
+        ObjectAddress,
+        // Variable defined by the user using the EE. Enter 'expression' "int i = 123;" in the immediate window
+        EEVariable,
     }
 }

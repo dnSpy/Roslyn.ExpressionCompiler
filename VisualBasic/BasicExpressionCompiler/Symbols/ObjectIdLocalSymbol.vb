@@ -11,10 +11,13 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
 
         Private ReadOnly _isReadOnly As Boolean
 
-        Friend Sub New(method As MethodSymbol, type As TypeSymbol, name As String, displayName As String, isReadOnly As Boolean)
+        Friend Sub New(method As MethodSymbol, type As TypeSymbol, name As String, displayName As String, isReadOnly As Boolean, localKind As LocalAndMethodKind)
             MyBase.New(method, name, displayName, type)
             _isReadOnly = isReadOnly
+            LocalAndMethodKind = localKind
         End Sub
+
+        Friend Overrides ReadOnly Property LocalAndMethodKind As LocalAndMethodKind
 
         Friend Overrides ReadOnly Property IsReadOnly As Boolean
             Get

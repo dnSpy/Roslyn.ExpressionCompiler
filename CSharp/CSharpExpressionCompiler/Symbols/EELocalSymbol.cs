@@ -4,6 +4,7 @@ using System;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using Microsoft.CodeAnalysis.CSharp.Symbols;
+using Microsoft.CodeAnalysis.ExpressionEvaluator;
 using Roslyn.Utilities;
 
 namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
@@ -56,6 +57,8 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
             var type = typeMap.SubstituteType(_type);
             return new EELocalSymbol(method, _locations, _nameOpt, _ordinal, _declarationKind, type.Type, _refKind, _isPinned, _isCompilerGenerated, _canScheduleToStack);
         }
+
+        internal override LocalAndMethodKind LocalAndMethodKind => LocalAndMethodKind.Local;
 
         internal override LocalDeclarationKind DeclarationKind
         {

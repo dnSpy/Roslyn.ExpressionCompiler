@@ -2,6 +2,7 @@
 
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis.CSharp.Symbols;
+using Microsoft.CodeAnalysis.ExpressionEvaluator;
 using Roslyn.Utilities;
 
 namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
@@ -30,6 +31,8 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
             var type = typeMap.SubstituteType(_type);
             return new EELocalConstantSymbol(method, _name, type.Type, _value);
         }
+
+        internal override LocalAndMethodKind LocalAndMethodKind => LocalAndMethodKind.LocalConstant;
 
         public override string Name
         {

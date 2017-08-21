@@ -38,7 +38,7 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator
             out ResultProperties resultProperties,
             CompilationTestData testData);
 
-        internal abstract ReadOnlyCollection<byte> CompileGetLocals(
+        internal abstract byte[] CompileGetLocals(
             ArrayBuilder<LocalAndMethod> locals,
             bool argumentsOnly,
             ImmutableArray<Alias> aliases,
@@ -86,6 +86,22 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator
             return (simpleMessage != null) ?
                 simpleMessage.GetMessage() :
                 formatter.Format(error, preferredUICulture ?? CultureInfo.CurrentUICulture);
+        }
+
+        protected static string GetErrorAndFree(DiagnosticBag diagnostics)
+        {
+            string result;
+            if (diagnostics.HasAnyErrors())
+            {
+                var error = diagnostics.AsEnumerable().First(a => a.Severity == DiagnosticSeverity.Error);
+                result = GetErrorMessage(error, DebuggerDiagnosticFormatter.Instance, preferredUICulture: null);
+            }
+            else
+            {
+                result = null;
+            }
+            diagnostics.Free();
+            return result;
         }
 
         internal abstract bool HasDuplicateTypesOrAssemblies(Diagnostic diagnostic);

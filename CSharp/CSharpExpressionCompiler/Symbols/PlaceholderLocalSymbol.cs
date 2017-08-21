@@ -57,9 +57,9 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
             switch (alias.Kind)
             {
                 case DkmClrAliasKind.Exception:
-                    return new ExceptionLocalSymbol(containingMethod, name, displayName, type, ExpressionCompilerConstants.GetExceptionMethodName);
+                    return new ExceptionLocalSymbol(containingMethod, name, displayName, type, ExpressionCompilerConstants.GetExceptionMethodName, LocalAndMethodKind.Exception);
                 case DkmClrAliasKind.StowedException:
-                    return new ExceptionLocalSymbol(containingMethod, name, displayName, type, ExpressionCompilerConstants.GetStowedExceptionMethodName);
+                    return new ExceptionLocalSymbol(containingMethod, name, displayName, type, ExpressionCompilerConstants.GetStowedExceptionMethodName, LocalAndMethodKind.StowedException);
                 case DkmClrAliasKind.ReturnValue:
                     {
                         int index;
@@ -68,9 +68,9 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
                         return new ReturnValueLocalSymbol(containingMethod, name, displayName, type, index);
                     }
                 case DkmClrAliasKind.ObjectId:
-                    return new ObjectIdLocalSymbol(containingMethod, type, name, displayName, isWritable: false);
+                    return new ObjectIdLocalSymbol(containingMethod, type, name, displayName, isWritable: false, localAndMethodKind: LocalAndMethodKind.ObjectId);
                 case DkmClrAliasKind.Variable:
-                    return new ObjectIdLocalSymbol(containingMethod, type, name, displayName, isWritable: true);
+                    return new ObjectIdLocalSymbol(containingMethod, type, name, displayName, isWritable: true, localAndMethodKind: LocalAndMethodKind.EEVariable);
                 default:
                     throw ExceptionUtilities.UnexpectedValue(alias.Kind);
             }

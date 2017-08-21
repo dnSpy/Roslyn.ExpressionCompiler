@@ -43,17 +43,17 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
             Dim displayName = [alias].Name
             Select Case [alias].Kind
                 Case DkmClrAliasKind.Exception
-                    Return New ExceptionLocalSymbol(containingMethod, name, displayName, type, ExpressionCompilerConstants.GetExceptionMethodName)
+                    Return New ExceptionLocalSymbol(containingMethod, name, displayName, type, ExpressionCompilerConstants.GetExceptionMethodName, LocalAndMethodKind.Exception)
                 Case DkmClrAliasKind.StowedException
-                    Return New ExceptionLocalSymbol(containingMethod, name, displayName, type, ExpressionCompilerConstants.GetStowedExceptionMethodName)
+                    Return New ExceptionLocalSymbol(containingMethod, name, displayName, type, ExpressionCompilerConstants.GetStowedExceptionMethodName, LocalAndMethodKind.StowedException)
                 Case DkmClrAliasKind.ReturnValue
                     Dim index As Integer = 0
                     PseudoVariableUtilities.TryParseReturnValueIndex(name, index)
                     Return New ReturnValueLocalSymbol(containingMethod, name, displayName, type, index)
                 Case DkmClrAliasKind.ObjectId
-                    Return New ObjectIdLocalSymbol(containingMethod, type, name, displayName, isReadOnly:=True)
+                    Return New ObjectIdLocalSymbol(containingMethod, type, name, displayName, isReadOnly:=True, localKind:=LocalAndMethodKind.ObjectId)
                 Case DkmClrAliasKind.Variable
-                    Return New ObjectIdLocalSymbol(containingMethod, type, name, displayName, isReadOnly:=False)
+                    Return New ObjectIdLocalSymbol(containingMethod, type, name, displayName, isReadOnly:=False, localKind:=LocalAndMethodKind.EEVariable)
                 Case Else
                     Throw ExceptionUtilities.UnexpectedValue([alias].Kind)
             End Select

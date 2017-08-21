@@ -13,6 +13,7 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator
     {
         internal static readonly Guid PayloadTypeId = new Guid("108766CE-DF68-46EE-B761-0DCB7AC805F1");
 
+        /*
         internal static DkmClrCustomTypeInfo Create(
             ReadOnlyCollection<byte> dynamicFlags,
             ReadOnlyCollection<string> tupleElementNames)
@@ -20,7 +21,9 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator
             var payload = Encode(dynamicFlags, tupleElementNames);
             return (payload == null) ? null : DkmClrCustomTypeInfo.Create(PayloadTypeId, payload);
         }
+        */
 
+        /*
         /// <summary>
         /// Return a copy of the custom type info without tuple element names.
         /// </summary>
@@ -40,7 +43,9 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator
 
             return DkmClrCustomTypeInfo.Create(PayloadTypeId, new ReadOnlyCollection<byte>(CopyBytes(payload, 0, length)));
         }
+        */
 
+        /*
         /// <summary>
         /// Return a copy of the custom type info with the leading dynamic flag removed.
         /// There are no changes to tuple element names since this is used for walking
@@ -68,6 +73,7 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator
 
             return Create(DynamicFlagsCustomTypeInfo.SkipOne(dynamicFlags), tupleElementNames);
         }
+        */
 
         internal static string GetTupleElementNameIfAny(ReadOnlyCollection<string> tupleElementNames, int index)
         {

@@ -10,7 +10,6 @@ using System.Reflection;
 using System.Reflection.Metadata;
 using System.Reflection.Metadata.Ecma335;
 using Microsoft.CodeAnalysis.Collections;
-using Microsoft.DiaSymReader;
 using Roslyn.Utilities;
 
 namespace Microsoft.CodeAnalysis.ExpressionEvaluator
@@ -311,7 +310,7 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator
 
         private static byte[] GetWindowsProxyBytes()
         {
-            var assembly = typeof(ExpressionCompiler).GetTypeInfo().Assembly;
+            var assembly = typeof(EvaluationContextBase).GetTypeInfo().Assembly;
             using (var stream = assembly.GetManifestResourceStream("Microsoft.CodeAnalysis.ExpressionEvaluator.Resources.WindowsProxy.winmd"))
             {
                 var bytes = new byte[stream.Length];
@@ -372,6 +371,7 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator
                 assemblyIdentity.ContentType == System.Reflection.AssemblyContentType.WindowsRuntime;
         }
 
+        /*
         internal static ImmutableArray<string> GetLocalNames(this ArrayBuilder<ISymUnmanagedScope> scopes)
         {
             var builder = ArrayBuilder<string>.GetInstance();
@@ -391,6 +391,7 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator
             }
             return builder.ToImmutableAndFree();
         }
+        */
 
         internal static ImmutableArray<int> GetSynthesizedMethods(byte[] assembly, string methodName)
         {

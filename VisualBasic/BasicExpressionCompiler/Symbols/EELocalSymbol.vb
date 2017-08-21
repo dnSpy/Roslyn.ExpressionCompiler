@@ -1,6 +1,7 @@
 ﻿' Copyright (c) Microsoft.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
 Imports System.Collections.Immutable
+Imports Microsoft.CodeAnalysis.ExpressionEvaluator
 Imports Microsoft.CodeAnalysis.VisualBasic.Symbols
 Imports Roslyn.Utilities
 
@@ -47,6 +48,12 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
             Dim type = typeMap.SubstituteType(Me.Type)
             Return New EELocalSymbol(method, _locations, _nameOpt, _ordinal, _declarationKind, type, _isByRef, _isPinned, _canScheduleToStack)
         End Function
+
+        Friend Overrides ReadOnly Property LocalAndMethodKind As LocalAndMethodKind
+            Get
+                Return LocalAndMethodKind.Local
+            End Get
+        End Property
 
         Friend Overrides ReadOnly Property DeclarationKind As LocalDeclarationKind
             Get

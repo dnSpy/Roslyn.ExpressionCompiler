@@ -12,10 +12,10 @@ Imports Microsoft.CodeAnalysis.Collections
 Imports Microsoft.CodeAnalysis.Debugging
 Imports Microsoft.CodeAnalysis.Emit
 Imports Microsoft.CodeAnalysis.ExpressionEvaluator
+Imports Microsoft.CodeAnalysis.ExpressionEvaluator.DnSpy
 Imports Microsoft.CodeAnalysis.VisualBasic.Symbols
 Imports Microsoft.CodeAnalysis.VisualBasic.Symbols.Metadata.PE
 Imports Microsoft.CodeAnalysis.VisualBasic.Syntax
-Imports Microsoft.DiaSymReader
 Imports Microsoft.VisualStudio.Debugger.Clr
 Imports Microsoft.VisualStudio.Debugger.Evaluation
 Imports Microsoft.VisualStudio.Debugger.Evaluation.ClrCompilation
@@ -105,7 +105,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
         ''' </summary>
         ''' <param name="previous">Previous context, if any, for possible re-use.</param>
         ''' <param name="metadataBlocks">Module metadata.</param>
-        ''' <param name="symReader"><see cref="ISymUnmanagedReader"/> for PDB associated with <paramref name="moduleVersionId"/>.</param>
+        ''' <param name="getMethodDebugInfo"></param>
         ''' <param name="moduleVersionId">Module containing method.</param>
         ''' <param name="methodToken">Method metadata token.</param>
         ''' <param name="methodVersion">Method version.</param>
@@ -116,7 +116,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
             previous As VisualBasicMetadataContext,
             metadataBlocks As ImmutableArray(Of MetadataBlock),
             lazyAssemblyReaders As Lazy(Of ImmutableArray(Of AssemblyReaders)),
-            symReader As Object,
+            getMethodDebugInfo As GetMethodDebugInfo,
             moduleVersionId As Guid,
             methodToken As Integer,
             methodVersion As Integer,
@@ -143,7 +143,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
             Return CreateMethodContext(
                 compilation,
                 lazyAssemblyReaders,
-                symReader,
+                getMethodDebugInfo,
                 moduleVersionId,
                 methodToken,
                 methodVersion,
@@ -154,7 +154,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
         Friend Shared Function CreateMethodContext(
             compilation As VisualBasicCompilation,
             lazyAssemblyReaders As Lazy(Of ImmutableArray(Of AssemblyReaders)),
-            symReader As Object,
+            getMethodDebugInfo As GetMethodDebugInfo,
             moduleVersionId As Guid,
             methodToken As Integer,
             methodVersion As Integer,
@@ -164,7 +164,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
             Return CreateMethodContext(
                 compilation,
                 lazyAssemblyReaders,
-                symReader,
+                getMethodDebugInfo,
                 moduleVersionId,
                 methodToken,
                 methodVersion,
@@ -175,7 +175,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
         Private Shared Function CreateMethodContext(
             compilation As VisualBasicCompilation,
             lazyAssemblyReaders As Lazy(Of ImmutableArray(Of AssemblyReaders)),
-            symReader As Object,
+            getMethodDebugInfo As GetMethodDebugInfo,
             moduleVersionId As Guid,
             methodToken As Integer,
             methodVersion As Integer,
@@ -183,6 +183,9 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
             localSignatureToken As Integer) As EvaluationContext
 
             Dim methodHandle = CType(MetadataTokens.Handle(methodToken), MethodDefinitionHandle)
+            If (localSignatureToken >> 24) <> &H11 Then
+                localSignatureToken = 0
+            End If
             Dim localSignatureHandle = If(localSignatureToken <> 0, CType(MetadataTokens.Handle(localSignatureToken), StandaloneSignatureHandle), Nothing)
 
             Dim currentFrame = compilation.GetMethod(moduleVersionId, methodHandle)
@@ -194,12 +197,15 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
 
             Dim debugInfo As MethodDebugInfo(Of TypeSymbol, LocalSymbol)
 
+#If 0 Then
             If IsDteeEntryPoint(currentFrame) Then
                 debugInfo = SynthesizeMethodDebugInfoForDtee(lazyAssemblyReaders.Value)
             Else
-                Dim typedSymReader = DirectCast(symReader, ISymUnmanagedReader3)
-                debugInfo = MethodDebugInfo(Of TypeSymbol, LocalSymbol).ReadMethodDebugInfo(typedSymReader, symbolProvider, methodToken, methodVersion, ilOffset, isVisualBasicMethod:=True)
+#End If
+            debugInfo = getMethodDebugInfo(moduleVersionId, methodToken, methodVersion, ilOffset).ToMethodDebugInfo(symbolProvider)
+#If 0 Then
             End If
+#End If
 
             Dim reuseSpan = debugInfo.ReuseSpan
 
@@ -252,7 +258,6 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
         ''' Logic copied from ProcedureContext::IsDteeEntryPoint.
         ''' Friend for testing.
         ''' </remarks>
-        ''' <seealso cref="SynthesizeMethodDebugInfoForDtee"/>
         Friend Shared Function IsDteeEntryPoint(currentFrame As MethodSymbol) As Boolean
             Dim typeName = currentFrame.ContainingType.Name
             Dim methodName = currentFrame.Name
@@ -263,6 +268,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
                     String.Equals(methodName, "ExecuteAssembly", StringComparison.Ordinal))
         End Function
 
+#If 0 Then
         ''' <summary>
         ''' When using DTEE with the hosting process enabled, if the assembly being debugged doesn't have
         ''' a Main method, the debugger will actually stop in a driver method in the hosting process.
@@ -357,6 +363,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
                 localConstants:=ImmutableArray(Of LocalSymbol).Empty,
                 reuseSpan:=Nothing)
         End Function
+#End If
 
         Friend Function CreateCompilationContext(withSyntax As Boolean) As CompilationContext
             Return New CompilationContext(
@@ -366,6 +373,19 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
                 _inScopeHoistedLocalSlots,
                 _methodDebugInfo,
                 withSyntax)
+        End Function
+
+        Friend Overloads Function CompileExpression(
+            expr As String,
+            compilationFlags As DkmEvaluationFlags,
+            aliases As ImmutableArray(Of [Alias]),
+            <Out> ByRef resultProperties As ResultProperties,
+            <Out> ByRef errorMessage As String) As CompileResult
+
+            Dim diagnostics = DiagnosticBag.GetInstance()
+            Dim res = CompileExpression(expr, compilationFlags, aliases, diagnostics, resultProperties, Nothing)
+            errorMessage = GetErrorAndFree(diagnostics)
+            Return res
         End Function
 
         Friend Overrides Function CompileExpression(
@@ -425,6 +445,19 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
             End Using
         End Function
 
+        Friend Overloads Function CompileAssignment(
+            target As String,
+            expr As String,
+            aliases As ImmutableArray(Of [Alias]),
+            <Out> ByRef resultProperties As ResultProperties,
+            <Out> ByRef errorMessage As String) As CompileResult
+
+            Dim diagnostics = DiagnosticBag.GetInstance()
+            Dim res = CompileAssignment(target, expr, aliases, diagnostics, resultProperties, Nothing)
+            errorMessage = GetErrorAndFree(diagnostics)
+            Return res
+        End Function
+
         Friend Overrides Function CompileAssignment(
             target As String,
             expr As String,
@@ -479,7 +512,19 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
             End Using
         End Function
 
-        Private Shared ReadOnly s_emptyBytes As New ReadOnlyCollection(Of Byte)(Array.Empty(Of Byte))
+        Friend Overloads Function CompileGetLocals(
+            argumentsOnly As Boolean,
+            aliases As ImmutableArray(Of [Alias]),
+            <Out> ByRef locals As DSEELocalAndMethod(),
+            <Out> ByRef typeName As String) As Byte()
+
+            Dim diagnostics = DiagnosticBag.GetInstance()
+            Dim builder = ArrayBuilder(Of LocalAndMethod).GetInstance()
+            Dim res = CompileGetLocals(builder, argumentsOnly, aliases, diagnostics, typeName, Nothing)
+            locals = DSEELocalAndMethod.CreateAndFree(builder)
+            diagnostics.Free()
+            Return res
+        End Function
 
         Friend Overrides Function CompileGetLocals(
             locals As ArrayBuilder(Of LocalAndMethod),
@@ -487,11 +532,11 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
             aliases As ImmutableArray(Of [Alias]),
             diagnostics As DiagnosticBag,
             <Out> ByRef typeName As String,
-            testData As CompilationTestData) As ReadOnlyCollection(Of Byte)
+            testData As CompilationTestData) As Byte()
 
             Dim context = Me.CreateCompilationContext(withSyntax:=False)
             Dim modulebuilder = context.CompileGetLocals(s_typeName, locals, argumentsOnly, aliases, testData, diagnostics)
-            Dim assembly As ReadOnlyCollection(Of Byte) = Nothing
+            Dim assembly As Byte() = Nothing
 
             If modulebuilder IsNot Nothing AndAlso locals.Count > 0 Then
                 Using stream As New MemoryStream()
@@ -508,14 +553,14 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
                         cancellationToken:=Nothing)
 
                     If Not diagnostics.HasAnyErrors() Then
-                        assembly = New ReadOnlyCollection(Of Byte)(stream.ToArray())
+                        assembly = stream.ToArray()
                     End If
                 End Using
             End If
 
             If assembly Is Nothing Then
                 locals.Clear()
-                assembly = s_emptyBytes
+                assembly = Array.Empty(Of Byte)()
             End If
 
             typeName = EvaluationContext.s_typeName

@@ -2,6 +2,7 @@
 
 Imports System.Collections.Immutable
 Imports System.Threading
+Imports Microsoft.CodeAnalysis.ExpressionEvaluator
 Imports Microsoft.CodeAnalysis.VisualBasic.Symbols
 Imports Roslyn.Utilities
 
@@ -28,6 +29,12 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
             _name = name
             _constantValue = constantValue
         End Sub
+
+        Friend Overrides ReadOnly Property LocalAndMethodKind As LocalAndMethodKind
+            Get
+                Return LocalAndMethodKind.LocalConstant
+            End Get
+        End Property
 
         Friend Overrides ReadOnly Property DeclarationKind As LocalDeclarationKind
             Get

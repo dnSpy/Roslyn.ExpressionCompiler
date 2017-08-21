@@ -8,7 +8,7 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator
     {
         internal const string TypeVariablesLocalName = "<>TypeVariables";
         internal const string TypeVariablesClassName = "<>c__TypeVariables";
-        internal const string IntrinsicAssemblyNamespace = "Microsoft.VisualStudio.Debugger.Clr";
+        internal const string IntrinsicAssemblyNamespace = "dnSpy.Roslyn.ExpressionEvaluator";
         internal const string IntrinsicAssemblyTypeName = "IntrinsicMethods";
         internal const string IntrinsicAssemblyTypeMetadataName = IntrinsicAssemblyNamespace + "." + IntrinsicAssemblyTypeName;
         internal const string GetExceptionMethodName = "GetException";

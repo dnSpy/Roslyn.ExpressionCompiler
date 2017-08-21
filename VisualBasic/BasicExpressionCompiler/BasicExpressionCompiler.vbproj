@@ -117,10 +117,10 @@
     <Compile Include="VisualBasicCompileResult.vb" />
     <Compile Include="VisualBasicLocalAndMethod.vb" />
     <Compile Include="VisualBasicMetadataContext.vb" />
-    <Compile Include="VisualBasicExpressionCompiler.vb" />
-    <Compile Include="VisualBasicFrameDecoder.vb" />
-    <Compile Include="VisualBasicInstructionDecoder.vb" />
-    <Compile Include="VisualBasicLanguageInstructionDecoder.vb" />
+    <None Include="VisualBasicExpressionCompiler.vb" />
+    <None Include="VisualBasicFrameDecoder.vb" />
+    <None Include="VisualBasicInstructionDecoder.vb" />
+    <None Include="VisualBasicLanguageInstructionDecoder.vb" />
   </ItemGroup>
   <ItemGroup>
     <None Include="project.json" />

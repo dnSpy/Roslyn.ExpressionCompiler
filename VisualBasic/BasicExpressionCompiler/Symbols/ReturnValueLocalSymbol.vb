@@ -16,6 +16,12 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
             _index = index
         End Sub
 
+        Friend Overrides ReadOnly Property LocalAndMethodKind As LocalAndMethodKind
+            Get
+                Return LocalAndMethodKind.ReturnValue
+            End Get
+        End Property
+
         Friend Overrides ReadOnly Property IsReadOnly As Boolean
             Get
                 Return True

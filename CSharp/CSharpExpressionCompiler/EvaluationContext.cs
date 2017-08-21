@@ -15,7 +15,7 @@ using Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Emit;
 using Microsoft.CodeAnalysis.ExpressionEvaluator;
-using Microsoft.DiaSymReader;
+using Microsoft.CodeAnalysis.ExpressionEvaluator.DnSpy;
 using Microsoft.VisualStudio.Debugger.Evaluation;
 
 namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
@@ -102,7 +102,7 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
         /// </summary>
         /// <param name="previous">Previous context, if any, for possible re-use.</param>
         /// <param name="metadataBlocks">Module metadata</param>
-        /// <param name="symReader"><see cref="ISymUnmanagedReader"/> for PDB associated with <paramref name="moduleVersionId"/></param>
+        /// <param name="getMethodDebugInfo"></param>
         /// <param name="moduleVersionId">Module containing method</param>
         /// <param name="methodToken">Method metadata token</param>
         /// <param name="methodVersion">Method version.</param>
@@ -112,7 +112,7 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
         internal static EvaluationContext CreateMethodContext(
             CSharpMetadataContext previous,
             ImmutableArray<MetadataBlock> metadataBlocks,
-            object symReader,
+            GetMethodDebugInfo getMethodDebugInfo,
             Guid moduleVersionId,
             int methodToken,
             int methodVersion,
@@ -142,7 +142,7 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
 
             return CreateMethodContext(
                 compilation,
-                symReader,
+                getMethodDebugInfo,
                 moduleVersionId,
                 methodToken,
                 methodVersion,
@@ -152,7 +152,7 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
 
         internal static EvaluationContext CreateMethodContext(
             CSharpCompilation compilation,
-            object symReader,
+            GetMethodDebugInfo getMethodDebugInfo,
             Guid moduleVersionId,
             int methodToken,
             int methodVersion,
@@ -161,7 +161,7 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
         {
             return CreateMethodContext(
                 compilation,
-                symReader,
+                getMethodDebugInfo,
                 moduleVersionId,
                 methodToken,
                 methodVersion,
@@ -171,7 +171,7 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
 
         private static EvaluationContext CreateMethodContext(
             CSharpCompilation compilation,
-            object symReader,
+            GetMethodDebugInfo getMethodDebugInfo,
             Guid moduleVersionId,
             int methodToken,
             int methodVersion,
@@ -179,6 +179,8 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
             int localSignatureToken)
         {
             var methodHandle = (MethodDefinitionHandle)MetadataTokens.Handle(methodToken);
+            if ((localSignatureToken >> 24) != 0x11)
+                localSignatureToken = 0;
             var localSignatureHandle = (localSignatureToken != 0) ? (StandaloneSignatureHandle)MetadataTokens.Handle(localSignatureToken) : default(StandaloneSignatureHandle);
 
             var currentFrame = compilation.GetMethod(moduleVersionId, methodHandle);
@@ -188,9 +190,7 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
             var metadataDecoder = new MetadataDecoder((PEModuleSymbol)currentFrame.ContainingModule, currentFrame);
             var localInfo = metadataDecoder.GetLocalInfo(localSignatureHandle);
 
-            var typedSymReader = (ISymUnmanagedReader3)symReader;
-
-            var debugInfo = MethodDebugInfo<TypeSymbol, LocalSymbol>.ReadMethodDebugInfo(typedSymReader, symbolProvider, methodToken, methodVersion, ilOffset, isVisualBasicMethod: false);
+            var debugInfo = getMethodDebugInfo(moduleVersionId, methodToken, methodVersion, ilOffset).ToMethodDebugInfo(symbolProvider);
 
             var reuseSpan = debugInfo.ReuseSpan;
             var localsBuilder = ArrayBuilder<LocalSymbol>.GetInstance();
@@ -290,6 +290,19 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
             return assembly;
         }
 
+        internal CompileResult CompileExpression(
+            string expr,
+            DkmEvaluationFlags compilationFlags,
+            ImmutableArray<Alias> aliases,
+            out ResultProperties resultProperties,
+            out string errorMessage)
+        {
+            var diagnostics = DiagnosticBag.GetInstance();
+            var res = CompileExpression(expr, compilationFlags, aliases, diagnostics, out resultProperties, null);
+            errorMessage = GetErrorAndFree(diagnostics);
+            return res;
+        }
+
         internal override CompileResult CompileExpression(
             string expr,
             DkmEvaluationFlags compilationFlags,
@@ -376,6 +389,19 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
             return expr.ParseExpression(diagnostics, allowFormatSpecifiers: true, formatSpecifiers: out formatSpecifiers);
         }
 
+        internal CompileResult CompileAssignment(
+            string target,
+            string expr,
+            ImmutableArray<Alias> aliases,
+            out ResultProperties resultProperties,
+            out string errorMessage)
+        {
+            var diagnostics = DiagnosticBag.GetInstance();
+            var res = CompileAssignment(target, expr, aliases, diagnostics, out resultProperties, null);
+            errorMessage = GetErrorAndFree(diagnostics);
+            return res;
+        }
+
         internal override CompileResult CompileAssignment(
             string target,
             string expr,
@@ -430,10 +456,21 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
             }
         }
 
-        private static readonly ReadOnlyCollection<byte> s_emptyBytes =
-            new ReadOnlyCollection<byte>(Array.Empty<byte>());
+        internal byte[] CompileGetLocals(
+            bool argumentsOnly,
+            ImmutableArray<Alias> aliases,
+            out DSEELocalAndMethod[] locals,
+            out string typeName)
+        {
+            var diagnostics = DiagnosticBag.GetInstance();
+            var builder = ArrayBuilder<LocalAndMethod>.GetInstance();
+            var res = CompileGetLocals(builder, argumentsOnly, aliases, diagnostics, out typeName, null);
+            locals = DSEELocalAndMethod.CreateAndFree(builder);
+            diagnostics.Free();
+            return res;
+        }
 
-        internal override ReadOnlyCollection<byte> CompileGetLocals(
+        internal override byte[] CompileGetLocals(
             ArrayBuilder<LocalAndMethod> locals,
             bool argumentsOnly,
             ImmutableArray<Alias> aliases,
@@ -443,7 +480,7 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
         {
             var context = this.CreateCompilationContext();
             var moduleBuilder = context.CompileGetLocals(TypeName, locals, argumentsOnly, aliases, testData, diagnostics);
-            ReadOnlyCollection<byte> assembly = null;
+            byte[] assembly = null;
 
             if ((moduleBuilder != null) && (locals.Count > 0))
             {
@@ -463,7 +500,7 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
 
                     if (!diagnostics.HasAnyErrors())
                     {
-                        assembly = new ReadOnlyCollection<byte>(stream.ToArray());
+                        assembly = stream.ToArray();
                     }
                 }
             }
@@ -471,7 +508,7 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
             if (assembly == null)
             {
                 locals.Clear();
-                assembly = s_emptyBytes;
+                assembly = Array.Empty<byte>();
             }
 
             typeName = TypeName;

@@ -1,6 +1,7 @@
 ﻿' Copyright (c) Microsoft.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
 Imports System.Collections.Immutable
+Imports Microsoft.CodeAnalysis.ExpressionEvaluator
 Imports Microsoft.CodeAnalysis.VisualBasic.Symbols
 
 Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
@@ -10,10 +11,13 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
 
         Private ReadOnly _getExceptionMethodName As String
 
-        Friend Sub New(method As MethodSymbol, name As String, displayName As String, type As TypeSymbol, getExceptionMethodName As String)
+        Friend Sub New(method As MethodSymbol, name As String, displayName As String, type As TypeSymbol, getExceptionMethodName As String, localKind As LocalAndMethodKind)
             MyBase.New(method, name, displayName, type)
             _getExceptionMethodName = getExceptionMethodName
+            LocalAndMethodKind = localKind
         End Sub
+
+        Friend Overrides ReadOnly Property LocalAndMethodKind As LocalAndMethodKind
 
         Friend Overrides ReadOnly Property IsReadOnly As Boolean
             Get
