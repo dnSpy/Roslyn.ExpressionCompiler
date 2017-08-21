@@ -1,0 +1,143 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{4B38BFCF-4253-48E7-8AD2-861AE12F41DF}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AssemblyName>Roslyn.ExpressionEvaluator.VisualBasic.ExpressionCompiler.UnitTests</AssemblyName>
+    <FileAlignment>512</FileAlignment>
+    <MyType>Windows</MyType>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <SignAssembly>True</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\..\RoslynInternalKey.Private.snk</AssemblyOriginatorKeyFile>
+    <Features>strict</Features>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <DefineDebug>true</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DocumentationFile>BasicExpressionCompiler.xml</DocumentationFile>
+    <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <DefineDebug>false</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DocumentationFile>BasicExpressionCompiler.xml</DocumentationFile>
+    <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup>
+    <OptionExplicit>On</OptionExplicit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <OptionCompare>Binary</OptionCompare>
+  </PropertyGroup>
+  <PropertyGroup>
+    <OptionStrict>Off</OptionStrict>
+  </PropertyGroup>
+  <PropertyGroup>
+    <OptionInfer>On</OptionInfer>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Net.Http" />
+  </ItemGroup>
+  <ItemGroup>
+    <Import Include="Microsoft.VisualBasic" />
+    <Import Include="System" />
+    <Import Include="System.Collections" />
+    <Import Include="System.Collections.Generic" />
+    <Import Include="System.Data" />
+    <Import Include="System.Diagnostics" />
+    <Import Include="System.Linq" />
+    <Import Include="System.Xml.Linq" />
+    <Import Include="System.Threading.Tasks" />
+  </ItemGroup>
+  <ItemGroup>
+    <VsdConfigXml Include="BasicExpressionCompiler.vsdconfigxml">
+      <SubType>Designer</SubType>
+    </VsdConfigXml>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="My Project\AssemblyInfo.vb" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Binders\EENamedTypeBinder.vb" />
+    <Compile Include="Binders\ParametersAndLocalsBinder.vb" />
+    <Compile Include="Binders\SuppressDiagnosticsBinder.vb" />
+    <Compile Include="CompilationContext.vb" />
+    <Compile Include="CompilationExtensions.vb" />
+    <Compile Include="VisualBasicEESymbolProvider.vb" />
+    <Compile Include="EETypeNameDecoder.vb" />
+    <Compile Include="EEAssemblyBuilder.vb" />
+    <Compile Include="EvaluationContext.vb" />
+    <Compile Include="Resources.Designer.vb">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Rewriters\CapturedVariableRewriter.vb" />
+    <Compile Include="Rewriters\LocalDeclarationRewriter.vb" />
+    <Compile Include="Rewriters\MayHaveSideEffectsVisitor.vb" />
+    <Compile Include="Rewriters\PlaceholderLocalRewriter.vb" />
+    <Compile Include="SymbolExtensions.vb" />
+    <Compile Include="Symbols\DisplayClassInstance.vb" />
+    <Compile Include="Symbols\EEDisplayClassFieldLocalSymbol.vb" />
+    <Compile Include="Symbols\EELocalConstantSymbol.vb" />
+    <Compile Include="Symbols\EELocalSymbol.vb" />
+    <Compile Include="Symbols\DisplayClassVariable.vb" />
+    <Compile Include="Symbols\EELocalSymbolBase.vb" />
+    <Compile Include="Symbols\EEConstructorSymbol.vb" />
+    <Compile Include="Symbols\EEMethodSymbol.vb" />
+    <Compile Include="Symbols\EENamedTypeSymbol.vb" />
+    <Compile Include="Symbols\EEStaticLocalSymbol.vb" />
+    <Compile Include="Symbols\EETypeParameterSymbol.vb" />
+    <Compile Include="Symbols\ObjectIdLocalSymbol.vb" />
+    <Compile Include="Symbols\PlaceholderMethodSymbol.vb" />
+    <Compile Include="Binders\PlaceholderLocalBinder.vb" />
+    <Compile Include="Symbols\PlaceholderLocalSymbol.vb" />
+    <Compile Include="Symbols\ExceptionLocalSymbol.vb" />
+    <Compile Include="Symbols\ReturnValueLocalSymbol.vb" />
+    <Compile Include="Symbols\SimpleTypeParameterSymbol.vb" />
+    <Compile Include="Symbols\SynthesizedContextMethodSymbol.vb" />
+    <Compile Include="Symbols\TypeSubstitutionExtensions.vb" />
+    <Compile Include="SyntaxHelpers.vb" />
+    <Compile Include="TypeParameterChecker.vb" />
+    <Compile Include="VisualBasicCompileResult.vb" />
+    <Compile Include="VisualBasicLocalAndMethod.vb" />
+    <Compile Include="VisualBasicMetadataContext.vb" />
+    <Compile Include="VisualBasicExpressionCompiler.vb" />
+    <Compile Include="VisualBasicFrameDecoder.vb" />
+    <Compile Include="VisualBasicInstructionDecoder.vb" />
+    <Compile Include="VisualBasicLanguageInstructionDecoder.vb" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="project.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources.resx">
+      <CustomToolNamespace>Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator</CustomToolNamespace>
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.vb</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Core\ExpressionCompiler\ExpressionCompiler.csproj">
+      <Project>{255c3fec-91b5-4e11-aaf8-9b102ea57634}</Project>
+      <Name>ExpressionCompiler</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
+</Project>

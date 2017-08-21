@@ -1,0 +1,12 @@
+{
+  "dependencies": {
+    "Microsoft.CodeAnalysis.VisualBasic": "2.3.1",
+    "Microsoft.VisualStudio.Debugger.Engine": "15.0.26606"
+  },
+  "frameworks": {
+    "net46": {}
+  },
+  "runtimes": {
+    "win": {}
+  }
+}
