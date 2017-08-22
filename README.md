@@ -4,6 +4,8 @@ The `master` branch contains the original source code and a small number of chan
 
 The `dnSpy` branch contains the changes used by dnSpy. Eg. all references to the VS debugger and DiaSymReader NuGet packages have been removed. Only the core EE code is compiled.
 
+Only the expression compiler is used by dnSpy.
+
 ### License
 
 Same as Roslyn itself, see `License.txt` for more information.
