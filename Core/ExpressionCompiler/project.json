@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "Microsoft.CodeAnalysis": "2.3.1",
+    "Microsoft.CodeAnalysis": "2.3.2",
     "Microsoft.VisualStudio.Debugger.Engine": "15.0.26606",
     "Microsoft.DiaSymReader": "1.1.0"
   },
