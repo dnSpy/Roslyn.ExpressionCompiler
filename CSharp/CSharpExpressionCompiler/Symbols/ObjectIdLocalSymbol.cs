@@ -10,15 +10,18 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
     internal sealed class ObjectIdLocalSymbol : PlaceholderLocalSymbol
     {
         private readonly bool _isWritable;
+        private readonly int _index;
 
-        internal ObjectIdLocalSymbol(MethodSymbol method, TypeSymbol type, string name, string displayName, bool isWritable, LocalAndMethodKind localAndMethodKind) :
+        internal ObjectIdLocalSymbol(MethodSymbol method, TypeSymbol type, int index, string name, string displayName, bool isWritable, LocalAndMethodKind localAndMethodKind) :
             base(method, name, displayName, type)
         {
             _isWritable = isWritable;
+            _index = index;
             LocalAndMethodKind = localAndMethodKind;
         }
 
         internal override LocalAndMethodKind LocalAndMethodKind { get; }
+        internal override int Index => _index;
 
         internal override bool IsWritable
         {

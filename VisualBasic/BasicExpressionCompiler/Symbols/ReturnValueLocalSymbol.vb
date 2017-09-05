@@ -22,6 +22,12 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
             End Get
         End Property
 
+        Friend Overrides ReadOnly Property Index As Integer
+            Get
+                Return _index
+            End Get
+        End Property
+
         Friend Overrides ReadOnly Property IsReadOnly As Boolean
             Get
                 Return True

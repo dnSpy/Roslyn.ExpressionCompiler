@@ -28,6 +28,7 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
         internal static readonly ImmutableArray<Location> NoLocations = ImmutableArray.Create(NoLocation.Singleton);
 
         internal abstract LocalAndMethodKind LocalAndMethodKind { get; }
+        internal abstract int Index { get; }
 
         internal abstract EELocalSymbolBase ToOtherMethod(MethodSymbol method, TypeMap typeMap);
 

@@ -202,7 +202,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
                 debugInfo = SynthesizeMethodDebugInfoForDtee(lazyAssemblyReaders.Value)
             Else
 #End If
-            debugInfo = getMethodDebugInfo(moduleVersionId, methodToken, methodVersion, ilOffset).ToMethodDebugInfo(symbolProvider)
+            debugInfo = getMethodDebugInfo().ToMethodDebugInfo(symbolProvider)
 #If 0 Then
             End If
 #End If
@@ -516,13 +516,19 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
             argumentsOnly As Boolean,
             aliases As ImmutableArray(Of [Alias]),
             <Out> ByRef locals As DSEELocalAndMethod(),
-            <Out> ByRef typeName As String) As Byte()
+            <Out> ByRef typeName As String,
+            <Out> ByRef errorMessage As String) As Byte()
 
             Dim diagnostics = DiagnosticBag.GetInstance()
             Dim builder = ArrayBuilder(Of LocalAndMethod).GetInstance()
             Dim res = CompileGetLocals(builder, argumentsOnly, aliases, diagnostics, typeName, Nothing)
             locals = DSEELocalAndMethod.CreateAndFree(builder)
-            diagnostics.Free()
+            If locals IsNot Nothing Then
+                diagnostics.Free()
+                errorMessage = Nothing
+            Else
+                errorMessage = GetErrorAndFree(diagnostics)
+            End If
             Return res
         End Function
 

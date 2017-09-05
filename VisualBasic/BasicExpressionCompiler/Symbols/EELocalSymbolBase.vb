@@ -29,6 +29,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
         End Sub
 
         Friend MustOverride ReadOnly Property LocalAndMethodKind As LocalAndMethodKind
+        Friend MustOverride ReadOnly Property Index As Integer
 
         Friend Overrides ReadOnly Property IsImportedFromMetadata As Boolean
             Get

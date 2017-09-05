@@ -17,14 +17,16 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator
         public readonly string MethodName;
         public readonly DkmClrCompilationResultFlags Flags;
         public readonly LocalAndMethodKind Kind;
+        public readonly int Index;
 
-        public LocalAndMethod(string localName, string localDisplayName, string methodName, DkmClrCompilationResultFlags flags, LocalAndMethodKind kind)
+        public LocalAndMethod(string localName, string localDisplayName, string methodName, DkmClrCompilationResultFlags flags, LocalAndMethodKind kind, int index)
         {
             this.LocalName = localName;
             this.LocalDisplayName = localDisplayName;
             this.MethodName = methodName;
             this.Flags = flags;
             this.Kind = kind;
+            this.Index = index;
         }
 
         public abstract Guid GetCustomTypeInfo(out ReadOnlyCollection<byte> payload);

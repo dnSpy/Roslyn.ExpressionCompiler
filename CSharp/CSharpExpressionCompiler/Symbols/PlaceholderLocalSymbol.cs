@@ -68,9 +68,14 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
                         return new ReturnValueLocalSymbol(containingMethod, name, displayName, type, index);
                     }
                 case DkmClrAliasKind.ObjectId:
-                    return new ObjectIdLocalSymbol(containingMethod, type, name, displayName, isWritable: false, localAndMethodKind: LocalAndMethodKind.ObjectId);
+                    {
+                        int index;
+                        PseudoVariableUtilities.TryParseObjectIdIndex(name, out index);
+                        Debug.Assert(index >= 0);
+                        return new ObjectIdLocalSymbol(containingMethod, type, index, name, displayName, isWritable: false, localAndMethodKind: LocalAndMethodKind.ObjectId);
+                    }
                 case DkmClrAliasKind.Variable:
-                    return new ObjectIdLocalSymbol(containingMethod, type, name, displayName, isWritable: true, localAndMethodKind: LocalAndMethodKind.EEVariable);
+                    return new ObjectIdLocalSymbol(containingMethod, type, -1, name, displayName, isWritable: true, localAndMethodKind: LocalAndMethodKind.EEVariable);
                 default:
                     throw ExceptionUtilities.UnexpectedValue(alias.Kind);
             }

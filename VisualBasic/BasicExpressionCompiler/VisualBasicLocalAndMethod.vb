@@ -11,8 +11,8 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
 
         Private ReadOnly _method As MethodSymbol
 
-        Public Sub New(localName As String, localDisplayName As String, method As MethodSymbol, flags As DkmClrCompilationResultFlags, kind As LocalAndMethodKind)
-            MyBase.New(localName, localDisplayName, method.Name, flags, kind)
+        Public Sub New(localName As String, localDisplayName As String, method As MethodSymbol, flags As DkmClrCompilationResultFlags, kind As LocalAndMethodKind, index As Integer)
+            MyBase.New(localName, localDisplayName, method.Name, flags, kind, index)
             _method = method
         End Sub
 

@@ -10,7 +10,7 @@ using Microsoft.VisualStudio.Debugger.Evaluation.ClrCompilation;
 
 namespace Microsoft.CodeAnalysis.ExpressionEvaluator.DnSpy
 {
-    internal delegate DSEEMethodDebugInfo GetMethodDebugInfo(Guid moduleVersionId, int methodToken, int methodVersion, int ilOffset);
+    internal delegate DSEEMethodDebugInfo GetMethodDebugInfo();
 
     internal struct DSEELocalAndMethod
     {
@@ -19,6 +19,7 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator.DnSpy
         public string MethodName;
         public DkmClrCompilationResultFlags Flags;
         public LocalAndMethodKind Kind;
+        public int Index;
 
         /// <summary>
         /// <see cref="CustomTypeInfo.PayloadTypeId"/> or <see cref="Guid.Empty"/>
@@ -30,13 +31,14 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator.DnSpy
         /// </summary>
         public ReadOnlyCollection<byte> CustomTypeInfo;
 
-        public DSEELocalAndMethod(string localName, string localDisplayName, string methodName, DkmClrCompilationResultFlags flags, LocalAndMethodKind kind, Guid customTypeInfoId, ReadOnlyCollection<byte> customTypeInfo)
+        public DSEELocalAndMethod(string localName, string localDisplayName, string methodName, DkmClrCompilationResultFlags flags, LocalAndMethodKind kind, int index, Guid customTypeInfoId, ReadOnlyCollection<byte> customTypeInfo)
         {
             LocalName = localName;
             LocalDisplayName = localDisplayName;
             MethodName = methodName;
             Flags = flags;
             Kind = kind;
+            Index = index;
             CustomTypeInfoId = customTypeInfoId;
             CustomTypeInfo = customTypeInfo;
         }
@@ -48,7 +50,7 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator.DnSpy
             {
                 var l = builder[i];
                 var customTypeInfoId = l.GetCustomTypeInfo(out var customTypeInfo);
-                locals[i] = new DSEELocalAndMethod(l.LocalName, l.LocalDisplayName, l.MethodName, l.Flags, l.Kind, customTypeInfoId, customTypeInfo);
+                locals[i] = new DSEELocalAndMethod(l.LocalName, l.LocalDisplayName, l.MethodName, l.Flags, l.Kind, l.Index, customTypeInfoId, customTypeInfo);
             }
             builder.Free();
             return locals;

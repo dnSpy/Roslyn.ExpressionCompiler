@@ -325,7 +325,7 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
             DiagnosticBag diagnostics)
         {
             var objectType = this.Compilation.GetSpecialType(SpecialType.System_Object);
-            var allTypeParameters = _currentFrame.GetAllTypeParameters();
+            var allTypeParameters = ImmutableArray<TypeParameterSymbol>.Empty;
             var additionalTypes = ArrayBuilder<NamedTypeSymbol>.GetInstance();
 
             EENamedTypeSymbol typeVariablesType = null;
@@ -399,7 +399,7 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
                         {
                             var methodName = GetNextMethodName(methodBuilder);
                             var method = this.GetThisMethod(container, methodName);
-                            localBuilder.Add(new CSharpLocalAndMethod("this", "this", method, DkmClrCompilationResultFlags.None, LocalAndMethodKind.This)); // Note: writable in dev11.
+                            localBuilder.Add(new CSharpLocalAndMethod("this", "this", method, DkmClrCompilationResultFlags.None, LocalAndMethodKind.This, 0)); // Note: writable in dev11.
                             methodBuilder.Add(method);
                         }
                     }
@@ -462,7 +462,8 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
                                 ExpressionCompilerConstants.TypeVariablesLocalName,
                                 method,
                                 DkmClrCompilationResultFlags.ReadOnlyResult,
-                                LocalAndMethodKind.TypeVariables));
+                                LocalAndMethodKind.TypeVariables,
+                                -1));
                             methodBuilder.Add(method);
                         }
                     }
@@ -517,7 +518,7 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
             var name = SyntaxHelpers.EscapeKeywordIdentifiers(parameter.Name);
             var methodName = GetNextMethodName(methodBuilder);
             var method = this.GetParameterMethod(container, methodName, name, parameterIndex);
-            localBuilder.Add(new CSharpLocalAndMethod(name, name, method, DkmClrCompilationResultFlags.None, LocalAndMethodKind.Parameter));
+            localBuilder.Add(new CSharpLocalAndMethod(name, name, method, DkmClrCompilationResultFlags.None, LocalAndMethodKind.Parameter, parameterIndex));
             methodBuilder.Add(method);
         }
 
@@ -528,7 +529,7 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
             // which it can't do correctly without semantic information.
             var escapedName = SyntaxHelpers.EscapeKeywordIdentifiers(local.Name);
             var displayName = (local as PlaceholderLocalSymbol)?.DisplayName ?? escapedName;
-            return new CSharpLocalAndMethod(escapedName, displayName, method, flags, (local as EELocalSymbolBase)?.LocalAndMethodKind ?? LocalAndMethodKind.Local);
+            return new CSharpLocalAndMethod(escapedName, displayName, method, flags, (local as EELocalSymbolBase)?.LocalAndMethodKind ?? LocalAndMethodKind.Local, (local as EELocalSymbolBase)?.Index ?? -1);
         }
 
         private static EEAssemblyBuilder CreateModuleBuilder(

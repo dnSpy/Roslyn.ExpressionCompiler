@@ -51,9 +51,11 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
                     PseudoVariableUtilities.TryParseReturnValueIndex(name, index)
                     Return New ReturnValueLocalSymbol(containingMethod, name, displayName, type, index)
                 Case DkmClrAliasKind.ObjectId
-                    Return New ObjectIdLocalSymbol(containingMethod, type, name, displayName, isReadOnly:=True, localKind:=LocalAndMethodKind.ObjectId)
+                    Dim index As Integer = 0
+                    PseudoVariableUtilities.TryParseObjectIdIndex(name, index)
+                    Return New ObjectIdLocalSymbol(containingMethod, type, index, name, displayName, isReadOnly:=True, localKind:=LocalAndMethodKind.ObjectId)
                 Case DkmClrAliasKind.Variable
-                    Return New ObjectIdLocalSymbol(containingMethod, type, name, displayName, isReadOnly:=False, localKind:=LocalAndMethodKind.EEVariable)
+                    Return New ObjectIdLocalSymbol(containingMethod, type, -1, name, displayName, isReadOnly:=False, localKind:=LocalAndMethodKind.EEVariable)
                 Case Else
                     Throw ExceptionUtilities.UnexpectedValue([alias].Kind)
             End Select

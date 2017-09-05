@@ -36,6 +36,12 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
             End Get
         End Property
 
+        Friend Overrides ReadOnly Property Index As Integer
+            Get
+                Return -1
+            End Get
+        End Property
+
         Friend Overrides ReadOnly Property DeclarationKind As LocalDeclarationKind
             Get
                 Return LocalDeclarationKind.Constant

@@ -33,6 +33,7 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
         }
 
         internal override LocalAndMethodKind LocalAndMethodKind => LocalAndMethodKind.LocalConstant;
+        internal override int Index => -1;
 
         public override string Name
         {

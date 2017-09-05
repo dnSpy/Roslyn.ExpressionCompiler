@@ -35,6 +35,7 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator
     internal static class PseudoVariableUtilities
     {
         private const int ReturnValuePrefixLength = 12; // "$ReturnValue"
+        private const int ObjectIdPrefixLength = 1; // "$"
 
         internal static bool TryParseReturnValueIndex(string name, out int index)
         {
@@ -43,6 +44,14 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator
             index = 0;
             return (n == ReturnValuePrefixLength) ||
                 ((n > ReturnValuePrefixLength) && int.TryParse(name.Substring(ReturnValuePrefixLength), NumberStyles.None, CultureInfo.InvariantCulture, out index));
+        }
+
+        internal static bool TryParseObjectIdIndex(string name, out int index)
+        {
+            Debug.Assert(name.StartsWith("$", StringComparison.OrdinalIgnoreCase));
+            int n = name.Length;
+            index = -1;
+            return ((n > ObjectIdPrefixLength) && int.TryParse(name.Substring(ObjectIdPrefixLength), NumberStyles.None, CultureInfo.InvariantCulture, out index));
         }
 
         internal static DkmClrCompilationResultFlags GetLocalResultFlags(this Alias alias)

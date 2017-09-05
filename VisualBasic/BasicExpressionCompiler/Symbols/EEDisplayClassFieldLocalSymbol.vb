@@ -36,6 +36,21 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
             End Get
         End Property
 
+        Friend Overrides ReadOnly Property Index As Integer
+            Get
+                Select Case _variable.Kind
+                    Case DisplayClassVariableKind.Local
+                        Return -1
+                    Case DisplayClassVariableKind.Parameter
+                        Return -1
+                    Case DisplayClassVariableKind.Me
+                        Return 0
+                    Case Else
+                        Throw New InvalidOperationException()
+                End Select
+            End Get
+        End Property
+
         Friend Overrides ReadOnly Property DeclarationKind As LocalDeclarationKind
             Get
                 Return LocalDeclarationKind.Variable

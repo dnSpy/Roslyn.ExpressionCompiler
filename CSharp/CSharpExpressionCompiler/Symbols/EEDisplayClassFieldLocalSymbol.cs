@@ -48,6 +48,24 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
             }
         }
 
+        internal override int Index
+        {
+            get
+            {
+                switch (_variable.Kind)
+                {
+                case DisplayClassVariableKind.Local:
+                    return -1;
+                case DisplayClassVariableKind.Parameter:
+                    return -1;
+                case DisplayClassVariableKind.This:
+                    return 0;
+                default:
+                    throw new InvalidOperationException();
+                }
+            }
+        }
+
         public override string Name
         {
             get { return _variable.Name; }

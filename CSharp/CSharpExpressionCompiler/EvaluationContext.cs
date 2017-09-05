@@ -190,7 +190,7 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
             var metadataDecoder = new MetadataDecoder((PEModuleSymbol)currentFrame.ContainingModule, currentFrame);
             var localInfo = metadataDecoder.GetLocalInfo(localSignatureHandle);
 
-            var debugInfo = getMethodDebugInfo(moduleVersionId, methodToken, methodVersion, ilOffset).ToMethodDebugInfo(symbolProvider);
+            var debugInfo = getMethodDebugInfo().ToMethodDebugInfo(symbolProvider);
 
             var reuseSpan = debugInfo.ReuseSpan;
             var localsBuilder = ArrayBuilder<LocalSymbol>.GetInstance();
@@ -460,13 +460,20 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
             bool argumentsOnly,
             ImmutableArray<Alias> aliases,
             out DSEELocalAndMethod[] locals,
-            out string typeName)
+            out string typeName,
+            out string errorMessage)
         {
             var diagnostics = DiagnosticBag.GetInstance();
             var builder = ArrayBuilder<LocalAndMethod>.GetInstance();
             var res = CompileGetLocals(builder, argumentsOnly, aliases, diagnostics, out typeName, null);
             locals = DSEELocalAndMethod.CreateAndFree(builder);
-            diagnostics.Free();
+            if (locals != null)
+            {
+                diagnostics.Free();
+                errorMessage = null;
+            }
+            else
+                errorMessage = GetErrorAndFree(diagnostics);
             return res;
         }
 

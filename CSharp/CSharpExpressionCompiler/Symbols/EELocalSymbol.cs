@@ -59,6 +59,7 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
         }
 
         internal override LocalAndMethodKind LocalAndMethodKind => LocalAndMethodKind.Local;
+        internal override int Index => _ordinal;
 
         internal override LocalDeclarationKind DeclarationKind
         {

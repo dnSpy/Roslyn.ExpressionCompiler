@@ -19,6 +19,7 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
         }
 
         internal override LocalAndMethodKind LocalAndMethodKind => LocalAndMethodKind.ObjectAddress;
+        internal override int Index => -1;
 
         internal override bool IsWritable
         {

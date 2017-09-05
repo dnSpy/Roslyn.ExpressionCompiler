@@ -10,14 +10,22 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
         Inherits PlaceholderLocalSymbol
 
         Private ReadOnly _isReadOnly As Boolean
+        Private ReadOnly _index As Integer
 
-        Friend Sub New(method As MethodSymbol, type As TypeSymbol, name As String, displayName As String, isReadOnly As Boolean, localKind As LocalAndMethodKind)
+        Friend Sub New(method As MethodSymbol, type As TypeSymbol, index As Integer, name As String, displayName As String, isReadOnly As Boolean, localKind As LocalAndMethodKind)
             MyBase.New(method, name, displayName, type)
             _isReadOnly = isReadOnly
+            _index = index
             LocalAndMethodKind = localKind
         End Sub
 
         Friend Overrides ReadOnly Property LocalAndMethodKind As LocalAndMethodKind
+
+        Friend Overrides ReadOnly Property Index As Integer
+            Get
+                Return _index
+            End Get
+        End Property
 
         Friend Overrides ReadOnly Property IsReadOnly As Boolean
             Get
