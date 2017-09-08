@@ -467,7 +467,7 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
             var builder = ArrayBuilder<LocalAndMethod>.GetInstance();
             var res = CompileGetLocals(builder, argumentsOnly, aliases, diagnostics, out typeName, null);
             locals = DSEELocalAndMethod.CreateAndFree(builder);
-            if (locals != null)
+            if (res.Length != 0)
             {
                 diagnostics.Free();
                 errorMessage = null;

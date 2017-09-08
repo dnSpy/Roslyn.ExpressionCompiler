@@ -523,7 +523,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
             Dim builder = ArrayBuilder(Of LocalAndMethod).GetInstance()
             Dim res = CompileGetLocals(builder, argumentsOnly, aliases, diagnostics, typeName, Nothing)
             locals = DSEELocalAndMethod.CreateAndFree(builder)
-            If locals IsNot Nothing Then
+            If res.Length <> 0 Then
                 diagnostics.Free()
                 errorMessage = Nothing
             Else
