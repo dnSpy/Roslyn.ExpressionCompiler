@@ -111,6 +111,10 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
             else
             {
                 type = local.Type;
+                if (type.IsTupleType)
+                {
+                    type = type.TupleUnderlyingType;
+                }
                 constraints = (local.IsPinned ? LocalSlotConstraints.Pinned : LocalSlotConstraints.None) |
                     ((local.RefKind == RefKind.None) ? LocalSlotConstraints.None : LocalSlotConstraints.ByRef);
             }

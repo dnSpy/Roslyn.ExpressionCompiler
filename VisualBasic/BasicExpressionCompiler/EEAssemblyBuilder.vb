@@ -99,10 +99,14 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
         Private Shared Function ToLocalDefinition(local As LocalSymbol, index As Integer) As LocalDefinition
             Dim constraints = If(local.IsPinned, LocalSlotConstraints.Pinned, LocalSlotConstraints.None) Or
                 If(local.IsByRef, LocalSlotConstraints.ByRef, LocalSlotConstraints.None)
+            Dim type = local.Type
+            If type.IsTupleType Then
+                type = type.TupleUnderlyingType
+            End If
             Return New LocalDefinition(
                 local,
                 local.Name,
-                DirectCast(local.Type, ITypeReference),
+                DirectCast(type, ITypeReference),
                 slot:=index,
                 synthesizedKind:=local.SynthesizedKind,
                 id:=Nothing,
