@@ -274,6 +274,14 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator
                     return DkmEvaluationResultCategory.Method;
                 case SymbolKind.Property:
                     return DkmEvaluationResultCategory.Property;
+                case SymbolKind.Field:
+                    return DkmEvaluationResultCategory.Field;
+                case SymbolKind.Event:
+                    return DkmEvaluationResultCategory.Event;
+                case SymbolKind.Local:
+                    return DkmEvaluationResultCategory.Local;
+                case SymbolKind.Parameter:
+                    return DkmEvaluationResultCategory.Parameter;
                 default:
                     return DkmEvaluationResultCategory.Data;
             }
