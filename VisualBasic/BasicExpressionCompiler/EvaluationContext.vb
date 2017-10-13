@@ -7,6 +7,7 @@ Imports System.Reflection
 Imports System.Reflection.Metadata
 Imports System.Reflection.Metadata.Ecma335
 Imports System.Runtime.InteropServices
+Imports System.Text
 Imports Microsoft.CodeAnalysis.CodeGen
 Imports Microsoft.CodeAnalysis.Collections
 Imports Microsoft.CodeAnalysis.Debugging
@@ -53,6 +54,43 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
             _locals = locals
             _inScopeHoistedLocalSlots = inScopeHoistedLocalSlots
             _methodDebugInfo = methodDebugInfo
+        End Sub
+
+        Friend Sub WriteImports(sb As StringBuilder)
+            For Each info1 In _methodDebugInfo.ImportRecordGroups
+                For Each info In info1
+                    If info.TargetKind = ImportTargetKind.Namespace Then
+                        sb.Append("Imports ")
+                        sb.AppendLine(info.TargetString)
+                    End If
+                Next
+            Next
+            If Not _currentFrame.ContainingNamespace.IsGlobalNamespace Then
+                sb.Append("Imports ")
+                sb.AppendLine(_currentFrame.ContainingNamespace.ToDisplayString())
+            End If
+        End Sub
+
+        Friend Sub WriteParameters(sb As StringBuilder)
+            Dim i As Integer = 0
+            For Each parameter In _currentFrame.Parameters
+                If i <> 0 Then
+                    sb.Append(", ")
+                End If
+                i = i + 1
+                sb.Append(parameter.Name)
+                sb.Append(" As ")
+                sb.Append(parameter.Type.ToDisplayString())
+            Next
+        End Sub
+
+        Friend Sub WriteLocals(sb As StringBuilder)
+            For Each local In _locals
+                sb.Append("Dim ")
+                sb.Append(local.Name)
+                sb.Append(" As ")
+                sb.AppendLine(local.Type.ToDisplayString())
+            Next
         End Sub
 
         ''' <summary>

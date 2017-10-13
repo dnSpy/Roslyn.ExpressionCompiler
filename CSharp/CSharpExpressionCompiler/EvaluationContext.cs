@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection.Metadata;
 using System.Reflection.Metadata.Ecma335;
+using System.Text;
 using System.Threading;
 using Microsoft.CodeAnalysis.CSharp.Symbols;
 using Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE;
@@ -51,6 +52,54 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
             _locals = locals;
             _inScopeHoistedLocalSlots = inScopeHoistedLocalSlots;
             _methodDebugInfo = methodDebugInfo;
+        }
+
+        internal void WriteImports(StringBuilder sb)
+        {
+            foreach (var info1 in _methodDebugInfo.ImportRecordGroups)
+            {
+                foreach (var info in info1)
+                {
+                    if (info.TargetKind == Debugging.ImportTargetKind.Namespace)
+                    {
+                        sb.Append("using ");
+                        sb.Append(info.TargetString);
+                        sb.AppendLine(";");
+                    }
+                }
+            }
+            if (!_currentFrame.ContainingNamespace.IsGlobalNamespace)
+            {
+                sb.Append("using ");
+                sb.Append(_currentFrame.ContainingNamespace.ToDisplayString());
+                sb.AppendLine(";");
+            }
+        }
+
+        internal void WriteParameters(StringBuilder sb)
+        {
+            int i = 0;
+            foreach (var parameter in _currentFrame.Parameters)
+            {
+                if (i++ != 0)
+                {
+                    sb.Append(", ");
+                }
+                sb.Append(parameter.Type.ToDisplayString());
+                sb.Append(' ');
+                sb.Append(parameter.Name);
+            }
+        }
+
+        internal void WriteLocals(StringBuilder sb)
+        {
+            foreach (var local in _locals)
+            {
+                sb.Append(local.Type.ToDisplayString());
+                sb.Append(' ');
+                sb.Append(local.Name);
+                sb.AppendLine(";");
+            }
         }
 
         /// <summary>
