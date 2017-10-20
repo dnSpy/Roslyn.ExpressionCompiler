@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection.Metadata;
 using Microsoft.CodeAnalysis.Debugging;
+using Microsoft.CodeAnalysis.Collections;
 using Microsoft.VisualStudio.Debugger;
 using Microsoft.VisualStudio.Debugger.Clr;
 using Microsoft.VisualStudio.Debugger.Clr.NativeCompilation;
