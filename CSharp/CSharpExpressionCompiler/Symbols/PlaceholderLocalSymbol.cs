@@ -7,6 +7,7 @@ using System.Diagnostics;
 using Microsoft.CodeAnalysis.CSharp.Symbols;
 using Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE;
 using Microsoft.CodeAnalysis.ExpressionEvaluator;
+using Microsoft.CodeAnalysis.Collections;
 using Microsoft.VisualStudio.Debugger.Clr;
 using Roslyn.Utilities;
 

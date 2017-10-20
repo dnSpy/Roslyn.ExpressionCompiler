@@ -306,8 +306,7 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
 
         internal static NameSyntax PrependExternAlias(IdentifierNameSyntax externAliasSyntax, NameSyntax nameSyntax)
         {
-            var qualifiedNameSyntax = nameSyntax as QualifiedNameSyntax;
-            if (qualifiedNameSyntax != null)
+            if (nameSyntax is QualifiedNameSyntax qualifiedNameSyntax)
             {
                 return SyntaxFactory.QualifiedName(
                     PrependExternAlias(externAliasSyntax, qualifiedNameSyntax.Left),
