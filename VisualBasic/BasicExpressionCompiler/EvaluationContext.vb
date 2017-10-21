@@ -35,7 +35,6 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
         Friend ReadOnly Compilation As VisualBasicCompilation
 
         Private ReadOnly _currentFrame As MethodSymbol
-        Private ReadOnly _currentSourceMethod As MethodSymbol
         Private ReadOnly _locals As ImmutableArray(Of LocalSymbol)
         Private ReadOnly _inScopeHoistedLocalSlots As ImmutableSortedSet(Of Integer)
         Private ReadOnly _methodDebugInfo As MethodDebugInfo(Of TypeSymbol, LocalSymbol)
@@ -44,7 +43,6 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
             methodContextReuseConstraints As MethodContextReuseConstraints?,
             compilation As VisualBasicCompilation,
             currentFrame As MethodSymbol,
-            currentSourceMethod As MethodSymbol,
             locals As ImmutableArray(Of LocalSymbol),
             inScopeHoistedLocalSlots As ImmutableSortedSet(Of Integer),
             methodDebugInfo As MethodDebugInfo(Of TypeSymbol, LocalSymbol))
@@ -52,7 +50,6 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
             Me.MethodContextReuseConstraints = methodContextReuseConstraints
             Me.Compilation = compilation
             _currentFrame = currentFrame
-            _currentSourceMethod = currentSourceMethod
             _locals = locals
             _inScopeHoistedLocalSlots = inScopeHoistedLocalSlots
             _methodDebugInfo = methodDebugInfo
@@ -98,7 +95,6 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
                 Nothing,
                 compilation,
                 currentFrame,
-                Nothing,
                 locals:=Nothing,
                 inScopeHoistedLocalSlots:=Nothing,
                 methodDebugInfo:=MethodDebugInfo(Of TypeSymbol, LocalSymbol).None)
@@ -187,7 +183,6 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
             localSignatureToken As Integer) As EvaluationContext
 
             Dim methodHandle = CType(MetadataTokens.Handle(methodToken), MethodDefinitionHandle)
-            Dim currentSourceMethod = compilation.GetSourceMethod(moduleVersionId, methodHandle)
             Dim localSignatureHandle = If(localSignatureToken <> 0, CType(MetadataTokens.Handle(localSignatureToken), StandaloneSignatureHandle), Nothing)
 
             Dim currentFrame = compilation.GetMethod(moduleVersionId, methodHandle)
@@ -228,7 +223,6 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
                 New MethodContextReuseConstraints(moduleVersionId, methodToken, methodVersion, reuseSpan),
                 compilation,
                 currentFrame,
-                currentSourceMethod,
                 localsBuilder.ToImmutableAndFree(),
                 inScopeHoistedLocalSlots,
                 debugInfo)
@@ -368,7 +362,6 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
             Return New CompilationContext(
                 Compilation,
                 _currentFrame,
-                _currentSourceMethod,
                 _locals,
                 _inScopeHoistedLocalSlots,
                 _methodDebugInfo,

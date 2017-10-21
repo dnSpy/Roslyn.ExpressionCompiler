@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
+// Copyright (c) Microsoft.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
 using System;
 using System.Collections.Generic;
@@ -409,7 +409,7 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator
             foreach (var dynamicLocal in dynamicLocals)
             {
                 int slot = dynamicLocal.SlotId;
-                var flags = dynamicLocal.Flags;
+                var flags = GetFlags(dynamicLocal);
                 if (slot == 0)
                 {
                     LocalKind kind;
@@ -422,12 +422,12 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator
                             continue;
                         case LocalKind.ConstantName:
                             constantBuilder = constantBuilder ?? ImmutableDictionary.CreateBuilder<string, ImmutableArray<bool>>();
-                            constantBuilder[name] = CreateBoolArray(flags);
+                            constantBuilder[name] = flags;
                             continue;
                     }
                 }
                 localBuilder = localBuilder ?? ImmutableDictionary.CreateBuilder<int, ImmutableArray<bool>>();
-                localBuilder[slot] = CreateBoolArray(flags);
+                localBuilder[slot] = flags;
             }
 
 
@@ -444,12 +444,16 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator
             localKindsByName.Free();
         }
 
-        static ImmutableArray<bool> CreateBoolArray(ulong value)
+        private static ImmutableArray<bool> GetFlags(DynamicLocalInfo bucket)
         {
-            var builder = ImmutableArray.CreateBuilder<bool>(64);
-            for (int i = 0; i < 64; i++, value >>= 1)
-                builder.Add(((uint)value & 1) != 0);
-            return builder.AsImmutable();
+            int flagCount = bucket.FlagCount;
+            ulong flags = bucket.Flags;
+            var builder = ArrayBuilder<bool>.GetInstance(flagCount);
+            for (int i = 0; i < flagCount; i++)
+            {
+                builder.Add((flags & (1u << i)) != 0);
+            }
+            return builder.ToImmutableAndFree();
         }
 
         private enum LocalKind { DuplicateName, VariableName, ConstantName }

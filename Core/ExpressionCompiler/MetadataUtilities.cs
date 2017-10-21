@@ -77,7 +77,7 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator
                         metadataBuilder.Add(metadata);
                     }
                 }
-                catch (BadImageFormatException)
+                catch (Exception e) when (IsBadMetadataException(e))
                 {
                     // Ignore modules with "bad" metadata.
                 }
@@ -280,7 +280,7 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator
                         }
                     }
                 }
-                catch (BadImageFormatException)
+                catch (Exception e) when (IsBadMetadataException(e))
                 {
                     // Ignore modules with "bad" metadata.
                 }
