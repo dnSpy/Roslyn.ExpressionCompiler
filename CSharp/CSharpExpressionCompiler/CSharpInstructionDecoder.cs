@@ -1,10 +1,8 @@
-﻿// Copyright (c) Microsoft.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
+// Copyright (c) Microsoft.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
 using System;
 using System.Collections.Immutable;
 using System.Diagnostics;
-using System.Reflection.Metadata;
-using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using Microsoft.CodeAnalysis.CSharp.Symbols;
 using Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE;
@@ -154,8 +152,7 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
 
         internal override MethodSymbol GetMethod(CSharpCompilation compilation, DkmClrInstructionAddress instructionAddress)
         {
-            var methodHandle = (MethodDefinitionHandle)MetadataTokens.Handle(instructionAddress.MethodId.Token);
-            return compilation.GetSourceMethod(instructionAddress.ModuleInstance.Mvid, methodHandle);
+            return compilation.GetSourceMethod(instructionAddress.ModuleInstance.Mvid, instructionAddress.MethodId.Token);
         }
 
         internal override TypeNameDecoder<PEModuleSymbol, TypeSymbol> GetTypeNameDecoder(CSharpCompilation compilation, MethodSymbol method)

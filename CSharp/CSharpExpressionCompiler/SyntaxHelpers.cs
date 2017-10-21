@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
+// Copyright (c) Microsoft.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
 using Microsoft.CodeAnalysis.Collections;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -306,7 +306,8 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
 
         internal static NameSyntax PrependExternAlias(IdentifierNameSyntax externAliasSyntax, NameSyntax nameSyntax)
         {
-            if (nameSyntax is QualifiedNameSyntax qualifiedNameSyntax)
+            var qualifiedNameSyntax = nameSyntax as QualifiedNameSyntax;
+            if (qualifiedNameSyntax != null)
             {
                 return SyntaxFactory.QualifiedName(
                     PrependExternAlias(externAliasSyntax, qualifiedNameSyntax.Left),

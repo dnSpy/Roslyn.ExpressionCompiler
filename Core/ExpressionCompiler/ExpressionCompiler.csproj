@@ -59,7 +59,6 @@
     <Compile Include="AssemblyReference.cs" />
     <Compile Include="CustomTypeInfo.cs" />
     <Compile Include="DebuggerDiagnosticFormatter.cs" />
-    <Compile Include="DkmExceptionUtilities.cs" />
     <Compile Include="DynamicFlagsCustomTypeInfo.cs" />
     <Compile Include="EESymbolProvider.cs" />
     <Compile Include="ILSpan.cs" />

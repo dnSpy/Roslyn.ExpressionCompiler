@@ -13,7 +13,8 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator
         internal static bool IsBadOrMissingMetadataException(Exception e, string moduleName)
         {
             Debug.Assert(moduleName != null);
-            if (e is ObjectDisposedException objectDisposed)
+            var objectDisposed = e as ObjectDisposedException;
+            if (objectDisposed != null)
             {
                 Debug.WriteLine($"Module '{moduleName}' has been disposed.");
                 return true;
