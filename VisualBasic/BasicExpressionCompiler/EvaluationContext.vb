@@ -77,10 +77,10 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
                 If i <> 0 Then
                     sb.Append(", ")
                 End If
-                i = i + 1
-                sb.Append(parameter.Name)
+                sb.Append(_methodDebugInfo.GetParameterName(i + If(_currentFrame.IsShared, 0, 1), parameter))
                 sb.Append(" As ")
                 sb.Append(parameter.Type.ToDisplayString())
+                i = i + 1
             Next
         End Sub
 

@@ -36,6 +36,12 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
         Private ReadOnly _localsForBinding As ImmutableArray(Of LocalSymbol)
         Private ReadOnly _methodNotType As Boolean
         Private ReadOnly _voidType As NamedTypeSymbol
+        Private ReadOnly _methodDebugInfo As MethodDebugInfo(Of TypeSymbol, LocalSymbol)
+
+        Private Function GetParameterName(index As Integer, parameter As ParameterSymbol) As String
+            Debug.Assert(parameter.ContainingSymbol = _currentFrame)
+            Return _methodDebugInfo.GetParameterName(index, parameter)
+        End Function
 
         ''' <summary>
         ''' Create a context to compile expressions within a method scope.
@@ -49,6 +55,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
             withSyntax As Boolean)
 
             _currentFrame = currentFrame
+            _methodDebugInfo = methodDebugInfo
 
             Debug.Assert(compilation.Options.RootNamespace = "") ' Default value.
             Debug.Assert(methodDebugInfo.ExternAliasRecords.IsDefaultOrEmpty)
@@ -275,7 +282,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
                     ' Method parameters (except those that have been hoisted).
                     Dim parameterIndex = If(m.IsShared, 0, 1)
                     For Each parameter In m.Parameters
-                        Dim parameterName As String = parameter.Name
+                        Dim parameterName As String = GetParameterName(parameterIndex, parameter)
                         If Not _hoistedParameterNames.Contains(parameterName) AndAlso GeneratedNames.GetKind(parameterName) = GeneratedNameKind.None Then
                             AppendParameterAndMethod(localBuilder, methodBuilder, parameter, container, parameterIndex)
                         End If
@@ -358,7 +365,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
             ' Note: The native EE doesn't do this, but if we don't escape keyword identifiers,
             ' the ResultProvider needs to be able to disambiguate cases Like "Me" And "[Me]",
             ' which it can't do correctly without semantic information.
-            Dim name = SyntaxHelpers.EscapeKeywordIdentifiers(parameter.Name)
+            Dim name = SyntaxHelpers.EscapeKeywordIdentifiers(GetParameterName(parameterIndex, parameter))
             Dim methodName = GetNextMethodName(methodBuilder)
             Dim method = Me.GetParameterMethod(container, methodName, parameter.Name, parameterIndex)
             localBuilder.Add(New VisualBasicLocalAndMethod(name, name, method, DkmClrCompilationResultFlags.None, LocalAndMethodKind.Parameter, parameterIndex))
@@ -402,6 +409,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
                 _currentFrame,
                 _locals,
                 _localsForBinding,
+                _methodDebugInfo,
                 _displayClassVariables,
                 _voidType,
                 generateMethodBody)
@@ -997,13 +1005,14 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
         ''' The mapping is needed to expose the original local identifiers (those from source)
         ''' in the binder.
         ''' </summary>
-        Private Shared Sub GetDisplayClassVariables(
+        Private Sub GetDisplayClassVariables(
             method As MethodSymbol,
             locals As ImmutableArray(Of LocalSymbol),
             inScopeHoistedLocalSlots As ImmutableSortedSet(Of Integer),
             <Out> ByRef displayClassVariableNamesInOrder As ImmutableArray(Of String),
             <Out> ByRef displayClassVariables As ImmutableDictionary(Of String, DisplayClassVariable),
             <Out> ByRef hoistedParameterNames As ImmutableHashSet(Of String))
+            Debug.Assert(method = _currentFrame)
 
             ' Calculated the shortest paths from locals to instances of display classes.
             ' There should not be two instances of the same display class immediately
@@ -1067,8 +1076,10 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
                         End If
                     Next
                 Else
+                    Dim parameterIndex = If(method.IsShared, 0, 1)
                     For Each parameter In method.Parameters
-                        parameterNames.Add(parameter.Name)
+                        parameterNames.Add(GetParameterName(parameterIndex, parameter))
+                        parameterIndex = parameterIndex + 1
                     Next
                 End If
 

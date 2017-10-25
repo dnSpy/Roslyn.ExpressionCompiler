@@ -54,6 +54,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
             sourceMethod As MethodSymbol,
             sourceLocals As ImmutableArray(Of LocalSymbol),
             sourceLocalsForBinding As ImmutableArray(Of LocalSymbol),
+            methodDebugInfo As MethodDebugInfo(Of TypeSymbol, LocalSymbol),
             sourceDisplayClassVariables As ImmutableDictionary(Of String, DisplayClassVariable),
             voidType As NamedTypeSymbol,
             generateMethodBody As GenerateMethodBody)
@@ -90,7 +91,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
             EENamedTypeSymbol.VerifyTypeParameters(Me, _typeParameters)
 
             Dim substitutedSourceType = container.SubstitutedSourceType
-            Me.SubstitutedSourceMethod = sourceMethod.AsMember(substitutedSourceType)
+            Me.SubstitutedSourceMethod = New RenamedParametersMethodSymbol(sourceMethod.AsMember(substitutedSourceType), methodDebugInfo)
             If _typeParameters.Any() Then
                 Me.SubstitutedSourceMethod = Me.SubstitutedSourceMethod.Construct(_typeParameters.As(Of TypeSymbol)())
             End If

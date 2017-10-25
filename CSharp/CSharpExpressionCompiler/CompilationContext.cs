@@ -39,6 +39,13 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
         private readonly ImmutableHashSet<string> _hoistedParameterNames;
         private readonly ImmutableArray<LocalSymbol> _localsForBinding;
         private readonly bool _methodNotType;
+        private readonly MethodDebugInfo<TypeSymbol, LocalSymbol> _methodDebugInfo;
+
+        private string GetParameterName(int index, ParameterSymbol parameter)
+        {
+            Debug.Assert(parameter.ContainingSymbol == _currentFrame);
+            return _methodDebugInfo.GetParameterName(index, parameter);
+        }
 
         /// <summary>
         /// Create a context to compile expressions within a method scope.
@@ -52,6 +59,7 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
         {
             _currentFrame = currentFrame;
             _methodNotType = !locals.IsDefault;
+            _methodDebugInfo = methodDebugInfo;
 
             // NOTE: Since this is done within CompilationContext, it will not be cached.
             // CONSIDER: The values should be the same everywhere in the module, so they
@@ -380,7 +388,7 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
                     int parameterIndex = m.IsStatic ? 0 : 1;
                     foreach (var parameter in m.Parameters)
                     {
-                        var parameterName = parameter.Name;
+                        var parameterName = GetParameterName(parameterIndex, parameter);
                         if (!_hoistedParameterNames.Contains(parameterName) &&
                             GeneratedNames.GetKind(parameterName) == GeneratedNameKind.None &&
                             !IsDisplayClassParameter(parameter))
@@ -469,7 +477,7 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
             // Note: The native EE doesn't do this, but if we don't escape keyword identifiers,
             // the ResultProvider needs to be able to disambiguate cases like "this" and "@this",
             // which it can't do correctly without semantic information.
-            var name = SyntaxHelpers.EscapeKeywordIdentifiers(parameter.Name);
+            var name = SyntaxHelpers.EscapeKeywordIdentifiers(GetParameterName(parameterIndex, parameter));
             var methodName = GetNextMethodName(methodBuilder);
             var method = this.GetParameterMethod(container, methodName, name, parameterIndex);
             localBuilder.Add(new CSharpLocalAndMethod(name, name, method, DkmClrCompilationResultFlags.None, LocalAndMethodKind.Parameter, parameterIndex));
@@ -519,6 +527,7 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
                 _currentFrame,
                 _locals,
                 _localsForBinding,
+                _methodDebugInfo,
                 _displayClassVariables,
                 generateMethodBody);
         }
@@ -1189,7 +1198,7 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
         /// "this") to locals. The mapping is needed to expose the original
         /// local identifiers (those from source) in the binder.
         /// </summary>
-        private static void GetDisplayClassVariables(
+        private void GetDisplayClassVariables(
             MethodSymbol method,
             ImmutableArray<LocalSymbol> locals,
             ImmutableSortedSet<int> inScopeHoistedLocalSlots,
@@ -1197,6 +1206,7 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
             out ImmutableDictionary<string, DisplayClassVariable> displayClassVariables,
             out ImmutableHashSet<string> hoistedParameterNames)
         {
+            Debug.Assert(method == _currentFrame);
             // Calculated the shortest paths from locals to instances of display
             // classes. There should not be two instances of the same display
             // class immediately within any particular method.
@@ -1270,9 +1280,11 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
                 }
                 else
                 {
+                    int parameterIndex = method.IsStatic ? 0 : 1;
                     foreach (var p in method.Parameters)
                     {
-                        parameterNames.Add(p.Name);
+                        parameterNames.Add(GetParameterName(parameterIndex, p));
+                        parameterIndex++;
                     }
                 }
 

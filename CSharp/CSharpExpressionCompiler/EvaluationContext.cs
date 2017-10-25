@@ -81,13 +81,14 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
             int i = 0;
             foreach (var parameter in _currentFrame.Parameters)
             {
-                if (i++ != 0)
+                if (i != 0)
                 {
                     sb.Append(", ");
                 }
                 sb.Append(parameter.Type.ToDisplayString());
                 sb.Append(' ');
-                sb.Append(parameter.Name);
+                sb.Append(_methodDebugInfo.GetParameterName(i + (_currentFrame.IsStatic ? 0 : 1), parameter));
+                i++;
             }
         }
 

@@ -90,6 +90,7 @@
     <Compile Include="Symbols\PlaceholderLocalSymbol.cs" />
     <Compile Include="Symbols\PlaceholderMethodSymbol.cs" />
     <Compile Include="Symbols\ExceptionLocalSymbol.cs" />
+    <Compile Include="Symbols\RenamedParametersMethodSymbol.cs" />
     <Compile Include="Symbols\ReturnValueLocalSymbol.cs" />
     <Compile Include="Symbols\SimpleTypeParameterSymbol.cs" />
     <Compile Include="Symbols\SynthesizedContextMethodSymbol.cs" />

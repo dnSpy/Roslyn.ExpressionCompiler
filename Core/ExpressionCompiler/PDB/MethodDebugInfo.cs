@@ -18,6 +18,7 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator
             null,
             "",
             ImmutableArray<string>.Empty,
+            default,
             ImmutableArray<TLocalSymbol>.Empty,
             ILSpan.MaxValue);
 
@@ -34,6 +35,7 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator
         public readonly ImmutableDictionary<int, ImmutableArray<string>> TupleLocalMap;
         public readonly string DefaultNamespaceName; // VB only.
         public readonly ImmutableArray<string> LocalVariableNames;
+        public readonly ImmutableArray<string> ParameterNames;
         public readonly ImmutableArray<TLocalSymbol> LocalConstants;
         public readonly ILSpan ReuseSpan;
 
@@ -45,6 +47,7 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator
             ImmutableDictionary<int, ImmutableArray<string>> tupleLocalMap,
             string defaultNamespaceName,
             ImmutableArray<string> localVariableNames,
+            ImmutableArray<string> parameterNames,
             ImmutableArray<TLocalSymbol> localConstants,
             ILSpan reuseSpan)
         {
@@ -62,8 +65,20 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator
             DefaultNamespaceName = defaultNamespaceName;
 
             LocalVariableNames = localVariableNames;
+            ParameterNames = parameterNames;
             LocalConstants = localConstants;
             ReuseSpan = reuseSpan;
+        }
+
+        public string GetParameterName(int index, IParameterSymbol parameter)
+        {
+            if (!ParameterNames.IsDefault)
+            {
+                Debug.Assert((uint)index < (uint)ParameterNames.Length);
+                if ((uint)index < (uint)ParameterNames.Length)
+                    return ParameterNames[index] ?? parameter.Name;
+            }
+            return parameter.Name;
         }
 
         public ImmutableSortedSet<int> GetInScopeHoistedLocalIndices(int ilOffset, ref ILSpan methodContextReuseSpan)

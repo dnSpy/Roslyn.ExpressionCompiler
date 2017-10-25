@@ -67,6 +67,7 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator.DnSpy
         public ImmutableDictionary<int, ImmutableArray<string>> TupleLocalMap;
         public string DefaultNamespaceName;
         public ImmutableArray<string> LocalVariableNames;
+        public ImmutableArray<string> ParameterNames;
         public ImmutableArray<DSEELocalConstant> LocalConstants;
         public ILSpan ReuseSpan;
     }
@@ -140,6 +141,7 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator.DnSpy
                 info.TupleLocalMap,
                 info.DefaultNamespaceName,
                 info.LocalVariableNames,
+                info.ParameterNames,
                 Convert(info.LocalConstants, symbolProvider),
                 info.ReuseSpan);
         }

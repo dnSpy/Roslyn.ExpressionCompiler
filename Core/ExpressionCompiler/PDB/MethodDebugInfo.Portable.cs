@@ -22,6 +22,7 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator
             ImmutableArray<ImmutableArray<ImportRecord>> importGroups;
             ImmutableArray<ExternAliasRecord> externAliases;
             ImmutableArray<string> localVariableNames;
+            ImmutableArray<string> parameterNames = default;
             ImmutableArray<TLocalSymbol> localConstants;
             ILSpan reuseSpan;
 
@@ -51,6 +52,7 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator
                 tupleLocalMap,
                 defaultNamespace,
                 localVariableNames,
+                parameterNames,
                 localConstants,
                 reuseSpan);
         }

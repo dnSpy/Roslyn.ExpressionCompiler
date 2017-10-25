@@ -67,6 +67,7 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
             MethodSymbol sourceMethod,
             ImmutableArray<LocalSymbol> sourceLocals,
             ImmutableArray<LocalSymbol> sourceLocalsForBinding,
+            MethodDebugInfo<TypeSymbol, LocalSymbol> methodDebugInfo,
             ImmutableDictionary<string, DisplayClassVariable> sourceDisplayClassVariables,
             GenerateMethodBody generateMethodBody)
         {
@@ -100,7 +101,7 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
             EENamedTypeSymbol.VerifyTypeParameters(this, _typeParameters);
 
             var substitutedSourceType = container.SubstitutedSourceType;
-            this.SubstitutedSourceMethod = sourceMethod.AsMember(substitutedSourceType);
+            this.SubstitutedSourceMethod = new RenamedParametersMethodSymbol(sourceMethod.AsMember(substitutedSourceType), methodDebugInfo);
             if (sourceMethod.Arity > 0)
             {
                 this.SubstitutedSourceMethod = this.SubstitutedSourceMethod.Construct(_typeParameters.As<TypeSymbol>());
