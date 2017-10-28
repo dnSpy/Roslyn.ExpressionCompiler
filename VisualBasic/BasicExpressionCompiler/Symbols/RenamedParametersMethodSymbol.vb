@@ -1,5 +1,4 @@
 ﻿' Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
-' Copyright (C) de4dot@gmail.com
 
 Imports System.Collections.Immutable
 Imports System.Reflection
@@ -15,20 +14,31 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
         Inherits MethodSymbol
 
         Private ReadOnly _originalMethod As MethodSymbol
+        Private ReadOnly _meParameter As ParameterSymbol
         Private ReadOnly _parameters As ImmutableArray(Of ParameterSymbol)
 
         Public Sub New(originalMethod As MethodSymbol, methodDebugInfo As MethodDebugInfo(Of TypeSymbol, LocalSymbol))
             _originalMethod = originalMethod
             Dim parameters = originalMethod.Parameters
             Dim builder = ArrayBuilder(Of ParameterSymbol).GetInstance()
-            Dim skipCount = If(originalMethod.IsShared, 0, 1)
-            Dim parameterIndex = skipCount
-            For Each p In parameters
-                Dim name = methodDebugInfo.GetParameterName(parameterIndex, p)
-                Dim parameter = MakeParameterSymbol(parameterIndex - skipCount, name, p)
+
+            Dim meParameter = originalMethod.MeParameter
+            Dim substitutedSourceHasMeParameter = meParameter IsNot Nothing
+            If substitutedSourceHasMeParameter Then
+                _meParameter = MakeParameterSymbol(0, GeneratedNames.MakeStateMachineCapturedMeName(), meParameter)
+                Debug.Assert(_meParameter.Type = originalMethod.ContainingType)
+                builder.Add(_meParameter)
+            End If
+
+            Dim ordinalOffset = If(substitutedSourceHasMeParameter, 1, 0)
+            For Each p In originalMethod.Parameters
+                Dim ordinal = p.Ordinal + ordinalOffset
+                Debug.Assert(ordinal = builder.Count)
+                Dim name = methodDebugInfo.GetParameterName(ordinal, p)
+                Dim parameter = MakeParameterSymbol(ordinal, p.Name, p)
                 builder.Add(parameter)
-                parameterIndex = parameterIndex + 1
             Next
+
             _parameters = builder.ToImmutableAndFree()
         End Sub
 
@@ -266,7 +276,8 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
         End Property
 
         Friend Overrides Function TryGetMeParameter(<Out> ByRef meParameter As ParameterSymbol) As Boolean
-            Return _originalMethod.TryGetMeParameter(meParameter)
+            meParameter = _meParameter
+            Return True
         End Function
 
         Friend Overrides ReadOnly Property PreserveOriginalLocals As Boolean

@@ -1,8 +1,8 @@
 ﻿// Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
-// Copyright (C) de4dot@gmail.com
 
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Reflection;
 using Microsoft.Cci;
 using Microsoft.CodeAnalysis.CSharp.Symbols;
@@ -12,23 +12,35 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
 {
     sealed class RenamedParametersMethodSymbol : MethodSymbol
     {
-        readonly MethodSymbol _originalMethod;
-        readonly ImmutableArray<ParameterSymbol> _parameters;
+        private readonly MethodSymbol _originalMethod;
+        private readonly ParameterSymbol _thisParameter;
+        private readonly ImmutableArray<ParameterSymbol> _parameters;
 
         public RenamedParametersMethodSymbol(MethodSymbol originalMethod, MethodDebugInfo<TypeSymbol, LocalSymbol> methodDebugInfo)
         {
             _originalMethod = originalMethod;
             var parameters = originalMethod.Parameters;
             var builder = ArrayBuilder<ParameterSymbol>.GetInstance();
-            int skipCount = originalMethod.IsStatic ? 0 : 1;
-            int parameterIndex = skipCount;
-            foreach (var p in parameters)
+
+            var thisParameter = originalMethod.ThisParameter;
+            var hasThisParameter = (object)thisParameter != null;
+            if (hasThisParameter)
             {
-                var name = methodDebugInfo.GetParameterName(parameterIndex, p);
-                var parameter = MakeParameterSymbol(parameterIndex - skipCount, name, p);
-                builder.Add(parameter);
-                parameterIndex++;
+                _thisParameter = MakeParameterSymbol(0, GeneratedNames.ThisProxyFieldName(), thisParameter);
+                Debug.Assert(_thisParameter.Type == originalMethod.ContainingType);
+                builder.Add(_thisParameter);
             }
+
+            var ordinalOffset = (hasThisParameter ? 1 : 0);
+            foreach (var p in originalMethod.Parameters)
+            {
+                var ordinal = p.Ordinal + ordinalOffset;
+                Debug.Assert(ordinal == builder.Count);
+                var name = methodDebugInfo.GetParameterName(ordinal, p);
+                var parameter = MakeParameterSymbol(ordinal, p.Name, p);
+                builder.Add(parameter);
+            }
+
             _parameters = builder.ToImmutableAndFree();
         }
 
@@ -78,6 +90,10 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
         internal override IEnumerable<SecurityAttribute> GetSecurityInformation() => _originalMethod.GetSecurityInformation();
         internal override ImmutableArray<string> GetAppliedConditionalSymbols() => _originalMethod.GetAppliedConditionalSymbols();
         internal override int CalculateLocalSyntaxOffset(int localPosition, SyntaxTree localTree) => _originalMethod.CalculateLocalSyntaxOffset(localPosition, localTree);
-        internal override bool TryGetThisParameter(out ParameterSymbol thisParameter) => _originalMethod.TryGetThisParameter(out thisParameter);
+        internal override bool TryGetThisParameter(out ParameterSymbol thisParameter)
+        {
+            thisParameter = _thisParameter;
+            return true;
+        }
     }
 }
