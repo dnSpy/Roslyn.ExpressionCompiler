@@ -26,17 +26,15 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
             var hasThisParameter = (object)thisParameter != null;
             if (hasThisParameter)
             {
-                _thisParameter = MakeParameterSymbol(0, GeneratedNames.ThisProxyFieldName(), thisParameter);
+                _thisParameter = MakeParameterSymbol(-1, GeneratedNames.ThisProxyFieldName(), thisParameter);
                 Debug.Assert(_thisParameter.Type == originalMethod.ContainingType);
-                builder.Add(_thisParameter);
             }
 
-            var ordinalOffset = (hasThisParameter ? 1 : 0);
             foreach (var p in originalMethod.Parameters)
             {
-                var ordinal = p.Ordinal + ordinalOffset;
+                var ordinal = p.Ordinal;
                 Debug.Assert(ordinal == builder.Count);
-                var name = methodDebugInfo.GetParameterName(ordinal, p);
+                var name = methodDebugInfo.GetParameterName(ordinal + (hasThisParameter ? 1 : 0), p);
                 var parameter = MakeParameterSymbol(ordinal, p.Name, p);
                 builder.Add(parameter);
             }

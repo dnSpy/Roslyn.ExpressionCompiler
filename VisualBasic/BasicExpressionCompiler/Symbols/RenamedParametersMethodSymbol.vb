@@ -25,16 +25,14 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
             Dim meParameter = originalMethod.MeParameter
             Dim substitutedSourceHasMeParameter = meParameter IsNot Nothing
             If substitutedSourceHasMeParameter Then
-                _meParameter = MakeParameterSymbol(0, GeneratedNames.MakeStateMachineCapturedMeName(), meParameter)
+                _meParameter = MakeParameterSymbol(-1, GeneratedNames.MakeStateMachineCapturedMeName(), meParameter)
                 Debug.Assert(_meParameter.Type = originalMethod.ContainingType)
-                builder.Add(_meParameter)
             End If
 
-            Dim ordinalOffset = If(substitutedSourceHasMeParameter, 1, 0)
             For Each p In originalMethod.Parameters
-                Dim ordinal = p.Ordinal + ordinalOffset
+                Dim ordinal = p.Ordinal
                 Debug.Assert(ordinal = builder.Count)
-                Dim name = methodDebugInfo.GetParameterName(ordinal, p)
+                Dim name = methodDebugInfo.GetParameterName(ordinal + If(substitutedSourceHasMeParameter, 1, 0), p)
                 Dim parameter = MakeParameterSymbol(ordinal, p.Name, p)
                 builder.Add(parameter)
             Next
