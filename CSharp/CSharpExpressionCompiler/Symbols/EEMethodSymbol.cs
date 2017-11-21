@@ -101,11 +101,12 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
             EENamedTypeSymbol.VerifyTypeParameters(this, _typeParameters);
 
             var substitutedSourceType = container.SubstitutedSourceType;
-            this.SubstitutedSourceMethod = new RenamedParametersMethodSymbol(sourceMethod.AsMember(substitutedSourceType), methodDebugInfo);
+            this.SubstitutedSourceMethod = sourceMethod.AsMember(substitutedSourceType);
             if (sourceMethod.Arity > 0)
             {
                 this.SubstitutedSourceMethod = this.SubstitutedSourceMethod.Construct(_typeParameters.As<TypeSymbol>());
             }
+            this.SubstitutedSourceMethod = new RenamedParametersMethodSymbol(this.SubstitutedSourceMethod, methodDebugInfo);
             TypeParameterChecker.Check(this.SubstitutedSourceMethod, _allTypeParameters);
 
             // Create a map from original parameter to target parameter.

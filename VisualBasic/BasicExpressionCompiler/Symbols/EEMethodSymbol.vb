@@ -91,10 +91,11 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
             EENamedTypeSymbol.VerifyTypeParameters(Me, _typeParameters)
 
             Dim substitutedSourceType = container.SubstitutedSourceType
-            Me.SubstitutedSourceMethod = New RenamedParametersMethodSymbol(sourceMethod.AsMember(substitutedSourceType), methodDebugInfo)
+            Me.SubstitutedSourceMethod = sourceMethod.AsMember(substitutedSourceType)
             If _typeParameters.Any() Then
                 Me.SubstitutedSourceMethod = Me.SubstitutedSourceMethod.Construct(_typeParameters.As(Of TypeSymbol)())
             End If
+            Me.SubstitutedSourceMethod = New RenamedParametersMethodSymbol(Me.SubstitutedSourceMethod, methodDebugInfo)
             TypeParameterChecker.Check(Me.SubstitutedSourceMethod, _allTypeParameters)
 
             ' Create a map from original parameter to target parameter.
