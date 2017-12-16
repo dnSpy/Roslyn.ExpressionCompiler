@@ -3,7 +3,7 @@
     "Microsoft.CodeAnalysis": "2.4.0",
   },
   "frameworks": {
-    "net462": {}
+    "net471": {}
   },
   "runtimes": {
     "win": {}
