@@ -12,6 +12,7 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator
     {
         public static readonly MethodDebugInfo<TTypeSymbol, TLocalSymbol> None = new MethodDebugInfo<TTypeSymbol, TLocalSymbol>(
             ImmutableArray<HoistedLocalScopeRecord>.Empty,
+            ImmutableDictionary<int, string>.Empty,
             ImmutableArray<ImmutableArray<ImportRecord>>.Empty,
             ImmutableArray<ExternAliasRecord>.Empty,
             null,
@@ -28,6 +29,7 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator
         /// Empty if there are no hoisted user defined local variables.
         /// </summary>
         public readonly ImmutableArray<HoistedLocalScopeRecord> HoistedLocalScopeRecords;
+        public readonly ImmutableDictionary<int, string> HoistedVarFieldTokenToNamesMap;
 
         public readonly ImmutableArray<ImmutableArray<ImportRecord>> ImportRecordGroups;
         public readonly ImmutableArray<ExternAliasRecord> ExternAliasRecords; // C# only.
@@ -41,6 +43,7 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator
 
         public MethodDebugInfo(
             ImmutableArray<HoistedLocalScopeRecord> hoistedLocalScopeRecords,
+            ImmutableDictionary<int, string> hoistedVarFieldTokenToNamesMap,
             ImmutableArray<ImmutableArray<ImportRecord>> importRecordGroups,
             ImmutableArray<ExternAliasRecord> externAliasRecords,
             ImmutableDictionary<int, ImmutableArray<bool>> dynamicLocalMap,
@@ -56,6 +59,7 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator
             Debug.Assert(defaultNamespaceName != null);
 
             HoistedLocalScopeRecords = hoistedLocalScopeRecords;
+            HoistedVarFieldTokenToNamesMap = hoistedVarFieldTokenToNamesMap ?? ImmutableDictionary<int, string>.Empty;
             ImportRecordGroups = importRecordGroups;
 
             ExternAliasRecords = externAliasRecords;

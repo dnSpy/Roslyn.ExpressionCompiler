@@ -47,6 +47,7 @@
   </ItemGroup>
   <ItemGroup Label="Linked Files">
     <AppDesigner Include="Properties\" />
+    <Compile Include="CommonGeneratedNames.cs" />
     <Compile Include="DkmConstants.cs" />
     <Compile Include="DSEEMethodDebugInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">

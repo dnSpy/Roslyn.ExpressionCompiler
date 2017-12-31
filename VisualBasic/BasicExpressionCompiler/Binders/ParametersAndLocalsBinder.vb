@@ -29,7 +29,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
 
             For Each parameter In parameters
                 Dim name As String = parameter.Name
-                Dim kind As GeneratedNameKind = GeneratedNames.GetKind(name)
+                Dim kind As GeneratedNameKind = GeneratedNames2.GetKind(name)
                 If kind = GeneratedNameKind.None OrElse kind = GeneratedNameKind.HoistedMeField Then
                     nameToSymbolMap(name) = parameter
                 Else

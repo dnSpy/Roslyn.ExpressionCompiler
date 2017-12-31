@@ -102,7 +102,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
             If _methodNotType Then
                 _locals = locals
                 Dim displayClassVariableNamesInOrder As ImmutableArray(Of String) = Nothing
-                GetDisplayClassVariables(currentFrame, locals, inScopeHoistedLocalSlots, displayClassVariableNamesInOrder, _displayClassVariables, _hoistedParameterNames)
+                GetDisplayClassVariables(currentFrame, locals, inScopeHoistedLocalSlots, methodDebugInfo.HoistedVarFieldTokenToNamesMap, displayClassVariableNamesInOrder, _displayClassVariables, _hoistedParameterNames)
                 Debug.Assert(displayClassVariableNamesInOrder.Length = _displayClassVariables.Count)
                 _localsForBinding = GetLocalsForBinding(locals, displayClassVariableNamesInOrder, _displayClassVariables)
             Else
@@ -283,7 +283,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
                     Dim parameterIndex = If(m.IsShared, 0, 1)
                     For Each parameter In m.Parameters
                         Dim parameterName As String = GetParameterName(parameterIndex, parameter)
-                        If Not _hoistedParameterNames.Contains(parameterName) AndAlso GeneratedNames.GetKind(parameterName) = GeneratedNameKind.None Then
+                        If Not _hoistedParameterNames.Contains(parameterName) AndAlso GeneratedNames2.GetKind(parameterName) = GeneratedNameKind.None Then
                             AppendParameterAndMethod(localBuilder, methodBuilder, parameter, container, parameterIndex)
                         End If
 
@@ -1009,6 +1009,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
             method As MethodSymbol,
             locals As ImmutableArray(Of LocalSymbol),
             inScopeHoistedLocalSlots As ImmutableSortedSet(Of Integer),
+            hoistedVarFieldTokenToNamesMap As ImmutableDictionary(Of Integer, String),
             <Out> ByRef displayClassVariableNamesInOrder As ImmutableArray(Of String),
             <Out> ByRef displayClassVariables As ImmutableDictionary(Of String, DisplayClassVariable),
             <Out> ByRef hoistedParameterNames As ImmutableHashSet(Of String))
@@ -1031,7 +1032,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
             Next
 
             For Each parameter As ParameterSymbol In method.Parameters
-                If GeneratedNames.GetKind(parameter.Name) = GeneratedNameKind.TransparentIdentifier Then
+                If GeneratedNames2.GetKind(parameter.Name) = GeneratedNameKind.TransparentIdentifier Then
                     Dim instance As New DisplayClassInstanceFromParameter(parameter)
                     displayClassTypes.Add(instance.Type)
                     displayClassInstances.Add(New DisplayClassInstanceAndFields(instance))
@@ -1071,7 +1072,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
                         ' The ones beginning with "$VB$Local_" are the hoisted parameters.
                         Dim fieldName = field.Name
                         Dim parameterName As String = Nothing
-                        If GeneratedNames.TryParseHoistedUserVariableName(fieldName, parameterName) Then
+                        If GeneratedNames2.TryParseHoistedUserVariableName(fieldName, parameterName) Then
                             parameterNames.Add(parameterName)
                         End If
                     Next
@@ -1090,6 +1091,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
                         displayClassVariablesBuilder,
                         parameterNames,
                         inScopeHoistedLocalSlots,
+                        hoistedVarFieldTokenToNamesMap,
                         instance,
                         pooledHoistedParameterNames)
                 Next
@@ -1142,13 +1144,13 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
             Dim fieldName = field.Name
 
             Dim unmangledName As String = Nothing
-            If GeneratedNames.TryParseHoistedUserVariableName(fieldName, unmangledName) Then
+            If GeneratedNames2.TryParseHoistedUserVariableName(fieldName, unmangledName) Then
                 fieldName = unmangledName
             ElseIf field.IsAnonymousTypeField(unmangledName) Then
                 fieldName = unmangledName
             End If
 
-            Return GeneratedNames.GetKind(fieldName) = GeneratedNameKind.TransparentIdentifier
+            Return GeneratedNames2.GetKind(fieldName) = GeneratedNameKind.TransparentIdentifier
         End Function
 
         Private Shared Function IsGeneratedLocalName(name As String) As Boolean
@@ -1223,6 +1225,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
             displayClassVariablesBuilder As Dictionary(Of String, DisplayClassVariable),
             parameterNames As HashSet(Of String),
             inScopeHoistedLocalSlots As ImmutableSortedSet(Of Integer),
+            hoistedVarFieldTokenToNamesMap As ImmutableDictionary(Of Integer, String),
             instance As DisplayClassInstanceAndFields,
             hoistedParameterNames As HashSet(Of String))
 
@@ -1253,7 +1256,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
                     Debug.Assert(Not field.IsShared)
                     variableKind = DisplayClassVariableKind.Local
                     variableName = fieldName.Substring(StringConstants.HoistedSpecialVariablePrefix.Length)
-                ElseIf GeneratedNames.TryParseStateMachineHoistedUserVariableName(fieldName, hoistedLocalName, hoistedLocalSlotIndex) Then
+                ElseIf GeneratedNames2.TryParseStateMachineHoistedUserVariableName(fieldName, hoistedLocalName, hoistedLocalSlotIndex) Then
                     Debug.Assert(Not field.IsShared)
 
                     If Not inScopeHoistedLocalSlots.Contains(hoistedLocalSlotIndex) Then
@@ -1270,7 +1273,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
                     variableName = fieldName ' As in C#, we retain the mangled name.  It shouldn't be used, other than as a dictionary key.
                 ElseIf fieldName.StartsWith(StringConstants.LambdaCacheFieldPrefix, StringComparison.Ordinal) Then
                     Continue For
-                ElseIf GeneratedNames.GetKind(fieldName) = GeneratedNameKind.TransparentIdentifier
+                ElseIf GeneratedNames2.GetKind(fieldName) = GeneratedNameKind.TransparentIdentifier Then
                     ' A transparent identifier (field) in an anonymous type synthesized for a transparent identifier.
                     Debug.Assert(Not field.IsShared)
                     Continue For
@@ -1288,6 +1291,19 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
                     hoistedParameterNames.Add(variableName)
                 End If
 
+                If Not hoistedVarFieldTokenToNamesMap.IsEmpty Then
+                    Dim peField = TryCast(field, PEFieldSymbol)
+                    Dim fieldHandle = (peField?.Handle).GetValueOrDefault()
+                    If Not fieldHandle.IsNil Then
+                        ' There seems to be no public method to get the token! Use a hack to get the rid
+                        Dim token = &H4000000 + fieldHandle.GetHashCode()
+                        Dim suggestedName As String = Nothing
+                        If hoistedVarFieldTokenToNamesMap.TryGetValue(token, suggestedName) Then
+                            variableName = suggestedName
+                        End If
+                    End If
+                End If
+
                 If displayClassVariablesBuilder.ContainsKey(variableName) Then
                     ' Only expecting duplicates for async state machine
                     ' fields (that should be at the top-level).
@@ -1301,7 +1317,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
                     Debug.Assert((variableKind = DisplayClassVariableKind.Parameter) OrElse
                         (variableKind = DisplayClassVariableKind.Me))
 
-                    If variableKind = DisplayClassVariableKind.Parameter AndAlso GeneratedNames.GetKind(instance.Type.Name) = GeneratedNameKind.LambdaDisplayClass Then
+                    If variableKind = DisplayClassVariableKind.Parameter AndAlso GeneratedNames2.GetKind(instance.Type.Name) = GeneratedNameKind.LambdaDisplayClass Then
                         displayClassVariablesBuilder(variableName) = instance.ToVariable(variableName, variableKind, field)
                     End If
 
@@ -1350,7 +1366,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
 
             Dim desiredMethodName As String = Nothing
             If IsLambdaMethodName(candidateSubstitutedSourceMethod.Name) OrElse
-                    GeneratedNames.TryParseStateMachineTypeName(candidateSourceTypeName, desiredMethodName) Then
+                    GeneratedNames2.TryParseStateMachineTypeName(candidateSourceTypeName, desiredMethodName) Then
 
                 ' We could be in the MoveNext method of an async lambda.  If that is the case, we can't 
                 ' figure out desiredMethodName by unmangling the name.
@@ -1452,7 +1468,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
             Friend Sub New(instance As DisplayClassInstance)
                 MyClass.New(instance, ConsList(Of FieldSymbol).Empty)
                 Debug.Assert(instance.Type.IsClosureOrStateMachineType() OrElse
-                             GeneratedNames.GetKind(instance.Type.Name) = GeneratedNameKind.AnonymousType)
+                             GeneratedNames2.GetKind(instance.Type.Name) = GeneratedNameKind.AnonymousType)
             End Sub
 
             Private Sub New(instance As DisplayClassInstance, fields As ConsList(Of FieldSymbol))
@@ -1474,7 +1490,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
 
             Friend Function FromField(field As FieldSymbol) As DisplayClassInstanceAndFields
                 Debug.Assert(field.Type.IsClosureOrStateMachineType() OrElse
-                             GeneratedNames.GetKind(field.Type.Name) = GeneratedNameKind.AnonymousType)
+                             GeneratedNames2.GetKind(field.Type.Name) = GeneratedNameKind.AnonymousType)
                 Return New DisplayClassInstanceAndFields(Me.Instance, Me.Fields.Prepend(field))
             End Function
 

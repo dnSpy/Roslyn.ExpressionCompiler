@@ -47,7 +47,7 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
                 switch (part.Kind)
                 {
                     case SymbolDisplayPartKind.ClassName:
-                        if (GeneratedNames.GetKind(displayString) != GeneratedNameKind.LambdaDisplayClass)
+                        if (GeneratedNames2.GetKind(displayString) != GeneratedNameKind.LambdaDisplayClass)
                         {
                             builder.Append(displayString);
                         }

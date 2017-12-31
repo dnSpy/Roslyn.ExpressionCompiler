@@ -17,6 +17,7 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator
         {
             string defaultNamespace;
             ImmutableArray<HoistedLocalScopeRecord> hoistedLocalScopes;
+            ImmutableDictionary<int, string> hoistedVarFieldTokenToNamesMap = ImmutableDictionary<int, string>.Empty;
             ImmutableDictionary<int, ImmutableArray<bool>> dynamicLocalMap;
             ImmutableDictionary<int, ImmutableArray<string>> tupleLocalMap;
             ImmutableArray<ImmutableArray<ImportRecord>> importGroups;
@@ -46,6 +47,7 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator
 
             return new MethodDebugInfo<TTypeSymbol, TLocalSymbol>(
                 hoistedLocalScopes,
+                hoistedVarFieldTokenToNamesMap,
                 importGroups,
                 externAliases,
                 dynamicLocalMap,

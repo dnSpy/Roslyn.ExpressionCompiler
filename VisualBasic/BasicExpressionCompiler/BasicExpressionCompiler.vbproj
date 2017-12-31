@@ -70,6 +70,8 @@
     </VsdConfigXml>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CommonGeneratedNameKindExtensions.vb" />
+    <Compile Include="GeneratedNames2.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
   </ItemGroup>
   <ItemGroup>

@@ -60,6 +60,7 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator.DnSpy
     internal struct DSEEMethodDebugInfo
     {
         public ImmutableArray<HoistedLocalScopeRecord> HoistedLocalScopeRecords;
+        public ImmutableDictionary<int, string> HoistedVarFieldTokenToNamesMap;
         // VB: must be 0 or 2 in this order: file-level, project-level
         public ImmutableArray<ImmutableArray<DSEEImportRecord>> ImportRecordGroups;
         public ImmutableArray<DSEEExternAliasRecord> ExternAliasRecords;
@@ -135,6 +136,7 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator.DnSpy
         {
             return new MethodDebugInfo<TTypeSymbol, TLocalSymbol>(
                 info.HoistedLocalScopeRecords,
+                info.HoistedVarFieldTokenToNamesMap,
                 Convert(info.ImportRecordGroups, symbolProvider),
                 Convert(info.ExternAliasRecords, symbolProvider),
                 info.DynamicLocalMap,

@@ -86,6 +86,7 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
                     currentFrame,
                     _locals,
                     inScopeHoistedLocalSlots,
+                    methodDebugInfo.HoistedVarFieldTokenToNamesMap,
                     out displayClassVariableNamesInOrder,
                     out _displayClassVariables,
                     out _hoistedParameterNames);
@@ -390,7 +391,7 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
                     {
                         var parameterName = GetParameterName(parameterIndex, parameter);
                         if (!_hoistedParameterNames.Contains(parameterName) &&
-                            GeneratedNames.GetKind(parameterName) == GeneratedNameKind.None &&
+                            GeneratedNames2.GetKind(parameterName) == GeneratedNameKind.None &&
                             !IsDisplayClassParameter(parameter))
                         {
                             AppendParameterAndMethod(localBuilder, methodBuilder, parameter, container, parameterIndex);
@@ -1163,14 +1164,14 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
                     continue;
                 }
 
-                if (GeneratedNames.GetKind(name) != GeneratedNameKind.None)
+                if (GeneratedNames2.GetKind(name) != GeneratedNameKind.None)
                 {
                     continue;
                 }
 
                 // Although Roslyn doesn't name synthesized locals unless they are well-known to EE,
                 // Dev12 did so we need to skip them here.
-                if (GeneratedNames.IsSynthesizedLocalName(name))
+                if (GeneratedNames2.IsSynthesizedLocalName(name))
                 {
                     continue;
                 }
@@ -1202,6 +1203,7 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
             MethodSymbol method,
             ImmutableArray<LocalSymbol> locals,
             ImmutableSortedSet<int> inScopeHoistedLocalSlots,
+            ImmutableDictionary<int, string> hoistedVarFieldTokenToNamesMap,
             out ImmutableArray<string> displayClassVariableNamesInOrder,
             out ImmutableDictionary<string, DisplayClassVariable> displayClassVariables,
             out ImmutableHashSet<string> hoistedParameterNames)
@@ -1217,7 +1219,7 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
             foreach (var local in locals)
             {
                 var name = local.Name;
-                if ((name != null) && (GeneratedNames.GetKind(name) == GeneratedNameKind.DisplayClassLocalOrField))
+                if ((name != null) && (GeneratedNames2.GetKind(name) == GeneratedNameKind.DisplayClassLocalOrField))
                 {
                     var instance = new DisplayClassInstanceFromLocal((EELocalSymbol)local);
                     displayClassTypes.Add(instance.Type);
@@ -1227,7 +1229,7 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
 
             foreach (var parameter in method.Parameters)
             {
-                if (GeneratedNames.GetKind(parameter.Name) == GeneratedNameKind.TransparentIdentifier ||
+                if (GeneratedNames2.GetKind(parameter.Name) == GeneratedNameKind.TransparentIdentifier ||
                     IsDisplayClassParameter(parameter))
                 {
                     var instance = new DisplayClassInstanceFromParameter(parameter);
@@ -1248,7 +1250,7 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
                     displayClassInstances.Add(new DisplayClassInstanceAndFields(instance));
                 }
 
-                isIteratorOrAsyncMethod = GeneratedNames.GetKind(containingType.Name) == GeneratedNameKind.StateMachineType;
+                isIteratorOrAsyncMethod = GeneratedNames2.GetKind(containingType.Name) == GeneratedNameKind.StateMachineType;
             }
 
             if (displayClassInstances.Any())
@@ -1272,7 +1274,7 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
                         // All iterator and async state machine fields (including hoisted locals) have mangled names, except
                         // for hoisted parameters (whose field names are always the same as the original source parameters).
                         var fieldName = field.Name;
-                        if (GeneratedNames.GetKind(fieldName) == GeneratedNameKind.None)
+                        if (GeneratedNames2.GetKind(fieldName) == GeneratedNameKind.None)
                         {
                             parameterNames.Add(fieldName);
                         }
@@ -1296,6 +1298,7 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
                         displayClassVariablesBuilder,
                         parameterNames,
                         inScopeHoistedLocalSlots,
+                        hoistedVarFieldTokenToNamesMap,
                         instance,
                         pooledHoistedParameterNames);
                 }
@@ -1372,13 +1375,13 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
                     case GeneratedNameKind.TransparentIdentifier:
                         break;
                     case GeneratedNameKind.AnonymousTypeField:
-                        if (GeneratedNames.GetKind(part) != GeneratedNameKind.TransparentIdentifier)
+                        if (GeneratedNames2.GetKind(part) != GeneratedNameKind.TransparentIdentifier)
                         {
                             continue;
                         }
                         break;
                     case GeneratedNameKind.ThisProxyField:
-                        if (GeneratedNames.GetKind(fieldType.Name) != GeneratedNameKind.LambdaDisplayClass)
+                        if (GeneratedNames2.GetKind(fieldType.Name) != GeneratedNameKind.LambdaDisplayClass)
                         {
                             continue;
                         }
@@ -1419,6 +1422,7 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
             Dictionary<string, DisplayClassVariable> displayClassVariablesBuilder,
             HashSet<string> parameterNames,
             ImmutableSortedSet<int> inScopeHoistedLocalSlots,
+            ImmutableDictionary<int, string> hoistedVarFieldTokenToNamesMap,
             DisplayClassInstanceAndFields instance,
             HashSet<string> hoistedParameterNames)
         {
@@ -1457,7 +1461,7 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
                         // Filter out hoisted locals that are known to be out-of-scope at the current IL offset.
                         // Hoisted locals with invalid indices will be included since more information is better
                         // than less in error scenarios.
-                        if (GeneratedNames.TryParseSlotIndex(fieldName, out int slotIndex) &&
+                        if (GeneratedNames2.TryParseSlotIndex(fieldName, out int slotIndex) &&
                             !inScopeHoistedLocalSlots.Contains(slotIndex))
                         {
                             continue;
@@ -1491,6 +1495,19 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
                         continue;
                 }
 
+                if (!hoistedVarFieldTokenToNamesMap.IsEmpty)
+                {
+                    var peField = field as PEFieldSymbol;
+                    var fieldHandle = peField?.Handle ?? default;
+                    if (!fieldHandle.IsNil)
+                    {
+                        // There seems to be no public method to get the token! Use a hack to get the rid
+                        int token = 0x04000000 + fieldHandle.GetHashCode();
+                        if (hoistedVarFieldTokenToNamesMap.TryGetValue(token, out var suggestedName))
+                            variableName = suggestedName;
+                    }
+                }
+
                 if (displayClassVariablesBuilder.ContainsKey(variableName))
                 {
                     // Only expecting duplicates for async state machine
@@ -1500,12 +1517,12 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
                     Debug.Assert((variableKind == DisplayClassVariableKind.Parameter) ||
                         (variableKind == DisplayClassVariableKind.This));
 
-                    if (variableKind == DisplayClassVariableKind.Parameter && GeneratedNames.GetKind(instance.Type.Name) == GeneratedNameKind.LambdaDisplayClass)
+                    if (variableKind == DisplayClassVariableKind.Parameter && GeneratedNames2.GetKind(instance.Type.Name) == GeneratedNameKind.LambdaDisplayClass)
                     {
                         displayClassVariablesBuilder[variableName] = instance.ToVariable(variableName, variableKind, field);
                     }
                 }
-                else if (variableKind != DisplayClassVariableKind.This || GeneratedNames.GetKind(instance.Type.ContainingType.Name) != GeneratedNameKind.LambdaDisplayClass)
+                else if (variableKind != DisplayClassVariableKind.This || GeneratedNames2.GetKind(instance.Type.ContainingType.Name) != GeneratedNameKind.LambdaDisplayClass)
                 {
                     // In async lambdas, the hoisted "this" field in the state machine type will point to the display class instance, if there is one.
                     // In such cases, we want to add the display class "this" to the map instead (or nothing, if it lacks one).
@@ -1517,23 +1534,12 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
 
         private static bool TryParseGeneratedName(string name, out GeneratedNameKind kind, out string part)
         {
-            bool result = GeneratedNames.TryParseGeneratedName(name, out kind, out int openBracketOffset, out int closeBracketOffset);
-            switch (kind)
-            {
-                case GeneratedNameKind.AnonymousTypeField:
-                case GeneratedNameKind.HoistedLocalField:
-                    part = name.Substring(openBracketOffset + 1, closeBracketOffset - openBracketOffset - 1);
-                    break;
-                default:
-                    part = null;
-                    break;
-            }
-            return result;
+            return GeneratedNames2.TryParseGeneratedName(name, out kind, out part);
         }
 
         private static bool IsDisplayClassType(NamedTypeSymbol type)
         {
-            switch (GeneratedNames.GetKind(type.Name))
+            switch (GeneratedNames2.GetKind(type.Name))
             {
                 case GeneratedNameKind.LambdaDisplayClass:
                 case GeneratedNameKind.StateMachineType:
@@ -1599,22 +1605,22 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
             var candidateSubstitutedSourceType = candidateSubstitutedSourceMethod.ContainingType;
 
             string desiredMethodName;
-            if (GeneratedNames.TryParseSourceMethodNameFromGeneratedName(candidateSubstitutedSourceType.Name, GeneratedNameKind.StateMachineType, out desiredMethodName) ||
-                GeneratedNames.TryParseSourceMethodNameFromGeneratedName(candidateSubstitutedSourceMethod.Name, GeneratedNameKind.LambdaMethod, out desiredMethodName) ||
-                GeneratedNames.TryParseSourceMethodNameFromGeneratedName(candidateSubstitutedSourceMethod.Name, GeneratedNameKind.LocalFunction, out desiredMethodName))
+            if (GeneratedNames2.TryParseSourceMethodNameFromGeneratedName(candidateSubstitutedSourceType.Name, GeneratedNameKind.StateMachineType, out desiredMethodName) ||
+                GeneratedNames2.TryParseSourceMethodNameFromGeneratedName(candidateSubstitutedSourceMethod.Name, GeneratedNameKind.LambdaMethod, out desiredMethodName) ||
+                GeneratedNames2.TryParseSourceMethodNameFromGeneratedName(candidateSubstitutedSourceMethod.Name, GeneratedNameKind.LocalFunction, out desiredMethodName))
             {
                 // We could be in the MoveNext method of an async lambda.
                 string tempMethodName;
-                if (GeneratedNames.TryParseSourceMethodNameFromGeneratedName(desiredMethodName, GeneratedNameKind.LambdaMethod, out tempMethodName) ||
-                    GeneratedNames.TryParseSourceMethodNameFromGeneratedName(desiredMethodName, GeneratedNameKind.LocalFunction, out tempMethodName))
+                if (GeneratedNames2.TryParseSourceMethodNameFromGeneratedName(desiredMethodName, GeneratedNameKind.LambdaMethod, out tempMethodName) ||
+                    GeneratedNames2.TryParseSourceMethodNameFromGeneratedName(desiredMethodName, GeneratedNameKind.LocalFunction, out tempMethodName))
                 {
                     desiredMethodName = tempMethodName;
                     var containing = candidateSubstitutedSourceType.ContainingType;
                     Debug.Assert((object)containing != null);
-                    if (GeneratedNames.GetKind(containing.Name) == GeneratedNameKind.LambdaDisplayClass)
+                    if (GeneratedNames2.GetKind(containing.Name) == GeneratedNameKind.LambdaDisplayClass)
                     {
                         candidateSubstitutedSourceType = containing;
-                        sourceMethodMustBeInstance = candidateSubstitutedSourceType.MemberNames.Select(GeneratedNames.GetKind).Contains(GeneratedNameKind.ThisProxyField);
+                        sourceMethodMustBeInstance = candidateSubstitutedSourceType.MemberNames.Select(GeneratedNames2.GetKind).Contains(GeneratedNameKind.ThisProxyField);
                     }
                 }
 
@@ -1678,7 +1684,7 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
                 this(instance, ConsList<FieldSymbol>.Empty)
             {
                 Debug.Assert(IsDisplayClassType(instance.Type) ||
-                    GeneratedNames.GetKind(instance.Type.Name) == GeneratedNameKind.AnonymousType);
+                    GeneratedNames2.GetKind(instance.Type.Name) == GeneratedNameKind.AnonymousType);
             }
 
             private DisplayClassInstanceAndFields(DisplayClassInstance instance, ConsList<FieldSymbol> fields)
@@ -1700,7 +1706,7 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
             internal DisplayClassInstanceAndFields FromField(FieldSymbol field)
             {
                 Debug.Assert(IsDisplayClassType((NamedTypeSymbol)field.Type) ||
-                    GeneratedNames.GetKind(field.Type.Name) == GeneratedNameKind.AnonymousType);
+                    GeneratedNames2.GetKind(field.Type.Name) == GeneratedNameKind.AnonymousType);
                 return new DisplayClassInstanceAndFields(this.Instance, this.Fields.Prepend(field));
             }
 
