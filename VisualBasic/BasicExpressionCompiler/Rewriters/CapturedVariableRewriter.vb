@@ -1,6 +1,7 @@
 ﻿' Copyright (c) Microsoft.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
 Imports System.Collections.Immutable
+Imports Microsoft.CodeAnalysis.ExpressionEvaluator
 Imports Microsoft.CodeAnalysis.VisualBasic.Symbols
 
 Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
@@ -8,24 +9,28 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
         Inherits BoundTreeRewriterWithStackGuardWithoutRecursionOnTheLeftOfBinaryOperator
 
         Friend Shared Function Rewrite(
+            compiler As CompilerKind,
             targetMethodMeParameter As ParameterSymbol,
             displayClassVariables As ImmutableDictionary(Of String, DisplayClassVariable),
             node As BoundNode,
             diagnostics As DiagnosticBag) As BoundNode
 
-            Dim rewriter = New CapturedVariableRewriter(targetMethodMeParameter, displayClassVariables, diagnostics)
+            Dim rewriter = New CapturedVariableRewriter(compiler, targetMethodMeParameter, displayClassVariables, diagnostics)
             Return rewriter.Visit(node)
         End Function
 
+        Private ReadOnly _compiler As CompilerKind
         Private ReadOnly _targetMethodMeParameter As ParameterSymbol
         Private ReadOnly _displayClassVariables As ImmutableDictionary(Of String, DisplayClassVariable)
         Private ReadOnly _diagnostics As DiagnosticBag
 
         Private Sub New(
+            compiler As CompilerKind,
             targetMethodMeParameter As ParameterSymbol,
             displayClassVariables As ImmutableDictionary(Of String, DisplayClassVariable),
             diagnostics As DiagnosticBag)
 
+            _compiler = compiler
             _targetMethodMeParameter = targetMethodMeParameter
             _displayClassVariables = displayClassVariables
             _diagnostics = diagnostics
@@ -137,8 +142,8 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
                 ' The state machine case is for async lambdas.  The state machine
                 ' will have a hoisted "me" field if it needs access to the containing
                 ' display class, but the display class may not have a "me" field.
-                If symbol.Type.IsClosureOrStateMachineType() AndAlso
-                    GeneratedNames2.GetKind(name) <> GeneratedNameKind.TransparentIdentifier Then
+                If symbol.Type.IsClosureOrStateMachineType(_compiler) AndAlso
+                    _compiler.GetKind(name) <> GeneratedNameKind.TransparentIdentifier Then
 
                     ReportMissingMe(syntax)
                 End If

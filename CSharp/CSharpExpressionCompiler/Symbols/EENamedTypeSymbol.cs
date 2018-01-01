@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using Microsoft.CodeAnalysis.CSharp.Symbols;
+using Microsoft.CodeAnalysis.ExpressionEvaluator;
 using Roslyn.Utilities;
 
 namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
@@ -21,6 +22,7 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
         private readonly ImmutableArray<MethodSymbol> _methods;
 
         internal EENamedTypeSymbol(
+            CompilerKind compiler,
             NamespaceSymbol container,
             NamedTypeSymbol baseType,
             CSharpSyntaxNode syntax,
@@ -29,7 +31,7 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
             string methodName,
             CompilationContext context,
             GenerateMethodBody generateMethodBody) :
-            this(container, baseType, currentFrame, typeName, (m, t) => ImmutableArray.Create<MethodSymbol>(context.CreateMethod(t, methodName, syntax, generateMethodBody)))
+            this(compiler, container, baseType, currentFrame, typeName, (m, t) => ImmutableArray.Create<MethodSymbol>(context.CreateMethod(t, methodName, syntax, generateMethodBody)))
         {
         }
 
@@ -52,6 +54,7 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
         }
 
         internal EENamedTypeSymbol(
+            CompilerKind compiler,
             NamespaceSymbol container,
             NamedTypeSymbol baseType,
             MethodSymbol currentFrame,
@@ -77,7 +80,7 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
             TypeMap typeMap = null;
             var getTypeMap = new Func<TypeMap>(() => typeMap);
             _typeParameters = this.SourceTypeParameters.SelectAsArray(
-                (tp, i, arg) => (TypeParameterSymbol)new EETypeParameterSymbol(this, tp, i, getTypeMap),
+                (tp, i, arg) => (TypeParameterSymbol)new EETypeParameterSymbol(compiler, this, tp, i, getTypeMap),
                 (object)null);
 
             typeMap = new TypeMap(this.SourceTypeParameters, _typeParameters);

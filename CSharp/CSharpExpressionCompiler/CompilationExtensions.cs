@@ -24,14 +24,14 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
             return GetType(compilation.GetModule(moduleVersionId), (TypeDefinitionHandle)MetadataTokens.Handle(typeToken));
         }
 
-        internal static PEMethodSymbol GetSourceMethod(this CSharpCompilation compilation, Guid moduleVersionId, int methodToken)
+        internal static PEMethodSymbol GetSourceMethod(this CSharpCompilation compilation, CompilerKind compiler, Guid moduleVersionId, int methodToken)
         {
             var methodHandle = (MethodDefinitionHandle)MetadataTokens.Handle(methodToken);
             var method = GetMethod(compilation, moduleVersionId, methodHandle);
             var metadataDecoder = new MetadataDecoder((PEModuleSymbol)method.ContainingModule);
             var containingType = method.ContainingType;
             string sourceMethodName;
-            if (GeneratedNames2.TryParseSourceMethodNameFromGeneratedName(containingType.Name, GeneratedNameKind.StateMachineType, out sourceMethodName))
+            if (compiler.TryParseSourceMethodNameFromGeneratedName(containingType.Name, GeneratedNameKind.StateMachineType, out sourceMethodName))
             {
                 foreach (var member in containingType.ContainingType.GetMembers(sourceMethodName))
                 {

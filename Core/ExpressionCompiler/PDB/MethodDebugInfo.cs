@@ -21,7 +21,8 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator
             ImmutableArray<string>.Empty,
             default,
             ImmutableArray<TLocalSymbol>.Empty,
-            ILSpan.MaxValue);
+            ILSpan.MaxValue,
+            CompilerKind.Unknown);
 
         /// <summary>
         /// Hoisted local variable scopes.
@@ -40,6 +41,7 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator
         public readonly ImmutableArray<string> ParameterNames;
         public readonly ImmutableArray<TLocalSymbol> LocalConstants;
         public readonly ILSpan ReuseSpan;
+        public readonly CompilerKind Compiler;
 
         public MethodDebugInfo(
             ImmutableArray<HoistedLocalScopeRecord> hoistedLocalScopeRecords,
@@ -52,7 +54,8 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator
             ImmutableArray<string> localVariableNames,
             ImmutableArray<string> parameterNames,
             ImmutableArray<TLocalSymbol> localConstants,
-            ILSpan reuseSpan)
+            ILSpan reuseSpan,
+            CompilerKind compiler)
         {
             Debug.Assert(!importRecordGroups.IsDefault);
             Debug.Assert(!externAliasRecords.IsDefault);
@@ -72,6 +75,7 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator
             ParameterNames = parameterNames;
             LocalConstants = localConstants;
             ReuseSpan = reuseSpan;
+            Compiler = compiler;
         }
 
         public string GetParameterName(int index, IParameterSymbol parameter)

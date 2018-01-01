@@ -71,6 +71,7 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator.DnSpy
         public ImmutableArray<string> ParameterNames;
         public ImmutableArray<DSEELocalConstant> LocalConstants;
         public ILSpan ReuseSpan;
+        public CompilerKind Compiler;
     }
 
     internal enum DSEEImportTargetKind
@@ -145,7 +146,8 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator.DnSpy
                 info.LocalVariableNames,
                 info.ParameterNames,
                 Convert(info.LocalConstants, symbolProvider),
-                info.ReuseSpan);
+                info.ReuseSpan,
+                info.Compiler);
         }
 
         private static ImmutableArray<ImmutableArray<ImportRecord>> Convert<TTypeSymbol, TLocalSymbol>(

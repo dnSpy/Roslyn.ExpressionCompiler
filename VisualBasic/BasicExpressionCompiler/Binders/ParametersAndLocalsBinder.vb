@@ -2,6 +2,7 @@
 
 Imports System.Collections.Immutable
 Imports System.Runtime.InteropServices
+Imports Microsoft.CodeAnalysis.ExpressionEvaluator
 Imports Microsoft.CodeAnalysis.VisualBasic.Symbols
 Imports Roslyn.Utilities
 
@@ -12,11 +13,11 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
         Private ReadOnly _substitutedSourceMethod As MethodSymbol
         Private ReadOnly _nameToSymbolMap As Dictionary(Of String, Symbol)
 
-        Public Sub New(containingBinder As Binder, targetMethod As EEMethodSymbol, substitutedSourceMethod As MethodSymbol)
+        Public Sub New(compiler As CompilerKind, containingBinder As Binder, targetMethod As EEMethodSymbol, substitutedSourceMethod As MethodSymbol)
             MyBase.New(containingBinder)
 
             _substitutedSourceMethod = substitutedSourceMethod
-            _nameToSymbolMap = BuildNameToSymbolMap(targetMethod.Parameters, targetMethod.LocalsForBinding)
+            _nameToSymbolMap = BuildNameToSymbolMap(compiler, targetMethod.Parameters, targetMethod.LocalsForBinding)
         End Sub
 
         ''' <remarks>
@@ -24,12 +25,12 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
         ''' CONSIDER: We could create a multi-dictionary to let lookup fail "naturally".
         ''' CONSIDER: It would be nice to capture this behavior with a test.
         ''' </remarks>
-        Private Shared Function BuildNameToSymbolMap(parameters As ImmutableArray(Of ParameterSymbol), locals As ImmutableArray(Of LocalSymbol)) As Dictionary(Of String, Symbol)
+        Private Shared Function BuildNameToSymbolMap(compiler As CompilerKind, parameters As ImmutableArray(Of ParameterSymbol), locals As ImmutableArray(Of LocalSymbol)) As Dictionary(Of String, Symbol)
             Dim nameToSymbolMap As New Dictionary(Of String, Symbol)(CaseInsensitiveComparison.Comparer)
 
             For Each parameter In parameters
                 Dim name As String = parameter.Name
-                Dim kind As GeneratedNameKind = GeneratedNames2.GetKind(name)
+                Dim kind As GeneratedNameKind = compiler.GetKind(name)
                 If kind = GeneratedNameKind.None OrElse kind = GeneratedNameKind.HoistedMeField Then
                     nameToSymbolMap(name) = parameter
                 Else

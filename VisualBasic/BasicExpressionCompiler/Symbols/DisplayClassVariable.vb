@@ -1,6 +1,7 @@
 ﻿' Copyright (c) Microsoft.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
 Imports System.Collections.Immutable
+Imports Microsoft.CodeAnalysis.ExpressionEvaluator
 Imports Microsoft.CodeAnalysis.VisualBasic.Symbols
 Imports Roslyn.Utilities
 
@@ -17,12 +18,14 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
     ''' </summary>
     Friend NotInheritable Class DisplayClassVariable
 
+        ReadOnly compiler As CompilerKind
         Friend ReadOnly Name As String
         Friend ReadOnly Kind As DisplayClassVariableKind
         Friend ReadOnly DisplayClassInstance As DisplayClassInstance
         Friend ReadOnly DisplayClassFields As ConsList(Of FieldSymbol)
 
         Friend Sub New(
+            compiler As CompilerKind,
             name As String,
             kind As DisplayClassVariableKind,
             displayClassInstance As DisplayClassInstance,
@@ -30,6 +33,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
 
             Debug.Assert(displayClassFields.Any())
 
+            Me.compiler = compiler
             Me.Name = name
             Me.Kind = kind
             Me.DisplayClassInstance = displayClassInstance
@@ -69,22 +73,22 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
         End Function
 
         Friend Function SubstituteFields(otherInstance As DisplayClassInstance, typeMap As TypeSubstitution) As DisplayClassVariable
-            Dim otherFields = SubstituteFields(Me.DisplayClassFields, typeMap)
-            Return New DisplayClassVariable(Me.Name, Me.Kind, otherInstance, otherFields)
+            Dim otherFields = SubstituteFields(Me.compiler, Me.DisplayClassFields, typeMap)
+            Return New DisplayClassVariable(Me.compiler, Me.Name, Me.Kind, otherInstance, otherFields)
         End Function
 
-        Private Shared Function SubstituteFields(fields As ConsList(Of FieldSymbol), typeMap As TypeSubstitution) As ConsList(Of FieldSymbol)
+        Private Shared Function SubstituteFields(compiler As CompilerKind, fields As ConsList(Of FieldSymbol), typeMap As TypeSubstitution) As ConsList(Of FieldSymbol)
             If Not fields.Any() Then
                 Return ConsList(Of FieldSymbol).Empty
             End If
-            Dim head = SubstituteField(fields.Head, typeMap)
-            Dim tail = SubstituteFields(fields.Tail, typeMap)
+            Dim head = SubstituteField(compiler, fields.Head, typeMap)
+            Dim tail = SubstituteFields(compiler, fields.Tail, typeMap)
             Return tail.Prepend(head)
         End Function
 
-        Private Shared Function SubstituteField(field As FieldSymbol, typeMap As TypeSubstitution) As FieldSymbol
+        Private Shared Function SubstituteField(compiler As CompilerKind, field As FieldSymbol, typeMap As TypeSubstitution) As FieldSymbol
             Debug.Assert(Not field.IsShared)
-            Debug.Assert(Not field.IsReadOnly OrElse field.IsAnonymousTypeField(Nothing))
+            Debug.Assert(Not field.IsReadOnly OrElse field.IsAnonymousTypeField(compiler, Nothing))
             Debug.Assert(field.CustomModifiers.Length = 0)
             Debug.Assert(Not field.HasConstantValue)
             Return New EEDisplayClassFieldSymbol(typeMap.SubstituteNamedType(field.ContainingType), field.Name, typeMap.SubstituteType(field.Type), field.DeclaredAccessibility)

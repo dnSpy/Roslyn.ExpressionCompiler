@@ -35,6 +35,8 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
         // a unique method ordinal to each of them to avoid duplicate synthesized member names.
         private const int _methodOrdinal = 0;
 
+        readonly CompilerKind _compiler;
+
         internal readonly TypeMap TypeMap;
         internal readonly MethodSymbol SubstitutedSourceMethod;
         internal readonly ImmutableArray<LocalSymbol> Locals;
@@ -62,6 +64,7 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
 
         internal EEMethodSymbol(
             EENamedTypeSymbol container,
+            CompilerKind compiler,
             string name,
             Location location,
             MethodSymbol sourceMethod,
@@ -75,6 +78,7 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
             Debug.Assert(sourceMethod.ContainingSymbol == container.SubstitutedSourceType.OriginalDefinition);
             Debug.Assert(sourceLocals.All(l => l.ContainingSymbol == sourceMethod));
 
+            _compiler = compiler;
             _container = container;
             _name = name;
             _locations = ImmutableArray.Create(location);
@@ -93,7 +97,7 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
 
             var getTypeMap = new Func<TypeMap>(() => this.TypeMap);
             _typeParameters = sourceMethodTypeParameters.SelectAsArray(
-                (tp, i, arg) => (TypeParameterSymbol)new EETypeParameterSymbol(this, tp, i, getTypeMap),
+                (tp, i, arg) => (TypeParameterSymbol)new EETypeParameterSymbol(compiler, this, tp, i, getTypeMap),
                 (object)null);
             _allTypeParameters = container.TypeParameters.Concat(_typeParameters);
             this.TypeMap = new TypeMap(allSourceTypeParameters, _allTypeParameters);
@@ -664,7 +668,7 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
             }
             if ((object)_thisParameter != null)
             {
-                var typeNameKind = GeneratedNames2.GetKind(_thisParameter.Type.Name);
+                var typeNameKind = _compiler.GetKind(_thisParameter.Type.Name);
                 if (typeNameKind != GeneratedNameKind.None && typeNameKind != GeneratedNameKind.AnonymousType)
                 {
                     Debug.Assert(typeNameKind == GeneratedNameKind.LambdaDisplayClass ||

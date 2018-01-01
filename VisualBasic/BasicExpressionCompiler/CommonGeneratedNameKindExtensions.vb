@@ -10,8 +10,6 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
             Select Case kind
                 Case CommonGeneratedNameKind.None
                     Return GeneratedNameKind.None
-                Case CommonGeneratedNameKind.HoistedMeField
-                    Return GeneratedNameKind.HoistedMeField
                 Case CommonGeneratedNameKind.HoistedSynthesizedLocalField
                     Return GeneratedNameKind.HoistedSynthesizedLocalField
                 Case CommonGeneratedNameKind.HoistedUserVariableField
@@ -40,6 +38,8 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
                     Return GeneratedNameKind.LambdaCacheField
                 Case CommonGeneratedNameKind.LambdaDisplayClass
                     Return GeneratedNameKind.LambdaDisplayClass
+                Case CommonGeneratedNameKind.HoistedSpecialVariableField
+                    Return hiddenKind
                 Case CommonGeneratedNameKind.IteratorCurrentBackingField
                     Return GeneratedNameKind.IteratorCurrentField
                 Case CommonGeneratedNameKind.StateMachineParameterProxyField

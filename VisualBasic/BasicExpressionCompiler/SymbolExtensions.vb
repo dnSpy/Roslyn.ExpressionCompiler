@@ -4,6 +4,7 @@ Imports System.Collections.Immutable
 Imports System.Collections.ObjectModel
 Imports System.Runtime.CompilerServices
 Imports System.Runtime.InteropServices
+Imports Microsoft.CodeAnalysis.ExpressionEvaluator
 Imports Microsoft.CodeAnalysis.VisualBasic.Symbols
 
 Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
@@ -42,32 +43,24 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
         ''' affect behavior).
         ''' </summary>
         <Extension>
-        Public Function GetUnmangledName(sourceTypeParameter As TypeParameterSymbol) As String
+        Public Function GetUnmangledName(sourceTypeParameter As TypeParameterSymbol, compiler As CompilerKind) As String
             Dim sourceName = sourceTypeParameter.Name
-
-            If sourceName.StartsWith(StringConstants.StateMachineTypeParameterPrefix, StringComparison.Ordinal) Then
-                Debug.Assert(sourceTypeParameter.ContainingSymbol.Name.
-                             StartsWith(StringConstants.StateMachineTypeNamePrefix, StringComparison.Ordinal))
-                Debug.Assert(sourceName.Length > StringConstants.StateMachineTypeParameterPrefix.Length)
-                Return sourceName.Substring(StringConstants.StateMachineTypeParameterPrefix.Length)
-            End If
-
-            Return sourceName
+            Return compiler.GetUnmangledTypeParameterName(sourceName)
         End Function
 
         <Extension>
-        Friend Function IsClosureOrStateMachineType(type As TypeSymbol) As Boolean
-            Return type.IsClosureType() OrElse type.IsStateMachineType()
+        Friend Function IsClosureOrStateMachineType(type As TypeSymbol, compiler As CompilerKind) As Boolean
+            Return type.IsClosureType(compiler) OrElse type.IsStateMachineType(compiler)
         End Function
 
         <Extension>
-        Friend Function IsClosureType(type As TypeSymbol) As Boolean
-            Return type.Name.StartsWith(StringConstants.DisplayClassPrefix, StringComparison.Ordinal)
+        Friend Function IsClosureType(type As TypeSymbol, compiler As CompilerKind) As Boolean
+            Return compiler.GetKind(type.Name) = GeneratedNameKind.LambdaDisplayClass
         End Function
 
         <Extension>
-        Friend Function IsStateMachineType(type As TypeSymbol) As Boolean
-            Return type.Name.StartsWith(StringConstants.StateMachineTypeNamePrefix, StringComparison.Ordinal)
+        Friend Function IsStateMachineType(type As TypeSymbol, compiler As CompilerKind) As Boolean
+            Return compiler.GetKind2(type.Name) = CommonGeneratedNameKind.StateMachineType
         End Function
 
         <Extension>
@@ -79,8 +72,8 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
         End Function
 
         <Extension>
-        Friend Function IsAnonymousTypeField(field As FieldSymbol, <Out> ByRef unmangledName As String) As Boolean
-            If GeneratedNames2.GetKind(field.ContainingType.Name) <> GeneratedNameKind.AnonymousType Then
+        Friend Function IsAnonymousTypeField(field As FieldSymbol, compiler As CompilerKind, <Out> ByRef unmangledName As String) As Boolean
+            If compiler.GetKind(field.ContainingType.Name) <> GeneratedNameKind.AnonymousType Then
                 unmangledName = Nothing
                 Return False
             End If

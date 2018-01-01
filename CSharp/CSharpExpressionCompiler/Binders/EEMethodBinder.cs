@@ -5,18 +5,20 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using Microsoft.CodeAnalysis.CSharp.Symbols;
+using Microsoft.CodeAnalysis.ExpressionEvaluator;
 using Roslyn.Utilities;
 
 namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
 {
     internal sealed class EEMethodBinder : Binder
     {
+        private readonly CompilerKind _compiler;
         private readonly MethodSymbol _containingMethod;
         private readonly int _parameterOffset;
         private readonly ImmutableArray<ParameterSymbol> _targetParameters;
         private readonly Binder _sourceBinder;
 
-        internal EEMethodBinder(EEMethodSymbol method, MethodSymbol containingMethod, Binder next) : base(next)
+        internal EEMethodBinder(CompilerKind compiler, EEMethodSymbol method, MethodSymbol containingMethod, Binder next) : base(next)
         {
             // There are a lot of method symbols floating around and we're doing some subtle things with them.
             //   1) method is the EEMethodSymbol that we're going to synthesize and hand to the debugger to evaluate.
@@ -34,6 +36,7 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
             //   3) is where we'll pretend to be for the purposes of looking up parameters by name.  However, any
             //      parameters we bind to from (3) will be replaced by the corresponding parameters from (1).
 
+            _compiler = compiler;
             _containingMethod = containingMethod;
             var substitutedSourceMethod = method.SubstitutedSourceMethod;
             _parameterOffset = substitutedSourceMethod.IsStatic ? 0 : 1;
@@ -52,7 +55,7 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
                 // should be found by WithMethodTypeParametersBinder instead.
                 var parameter = (ParameterSymbol)symbols[i];
                 Debug.Assert(parameter.ContainingSymbol == _sourceBinder.ContainingMemberOrLambda);
-                Debug.Assert(GeneratedNames2.GetKind(parameter.Name) == GeneratedNameKind.None);
+                Debug.Assert(_compiler.GetKind(parameter.Name) == GeneratedNameKind.None);
                 symbols[i] = _targetParameters[parameter.Ordinal + _parameterOffset];
             }
         }

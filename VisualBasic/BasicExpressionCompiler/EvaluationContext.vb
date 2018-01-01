@@ -249,18 +249,18 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
 
             Dim inScopeHoistedLocalSlots As ImmutableSortedSet(Of Integer)
             If debugInfo.HoistedLocalScopeRecords.IsDefault Then
-                inScopeHoistedLocalSlots = GetInScopeHoistedLocalSlots(debugInfo.LocalVariableNames)
+                inScopeHoistedLocalSlots = GetInScopeHoistedLocalSlots(debugInfo.Compiler, debugInfo.LocalVariableNames)
             Else
                 inScopeHoistedLocalSlots = debugInfo.GetInScopeHoistedLocalIndices(ilOffset, reuseSpan)
             End If
 
             Dim localNames = debugInfo.LocalVariableNames.WhereAsArray(
-                Function(name) name Is Nothing OrElse Not name.StartsWith(StringConstants.StateMachineHoistedUserVariablePrefix, StringComparison.Ordinal))
+                Function(name) name Is Nothing OrElse debugInfo.Compiler.GetKind(name) <> GeneratedNameKind.StateMachineHoistedUserVariableField)
 
             Dim localsBuilder = ArrayBuilder(Of LocalSymbol).GetInstance()
             MethodDebugInfo(Of TypeSymbol, LocalSymbol).GetLocals(localsBuilder, symbolProvider, localNames, localInfo, Nothing, debugInfo.TupleLocalMap)
 
-            GetStaticLocals(localsBuilder, currentFrame, methodHandle, metadataDecoder)
+            GetStaticLocals(debugInfo.Compiler, localsBuilder, currentFrame, methodHandle, metadataDecoder)
             localsBuilder.AddRange(debugInfo.LocalConstants)
 
             Return New EvaluationContext(
@@ -272,12 +272,12 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
                 debugInfo)
         End Function
 
-        Private Shared Function GetInScopeHoistedLocalSlots(allLocalNames As ImmutableArray(Of String)) As ImmutableSortedSet(Of Integer)
+        Private Shared Function GetInScopeHoistedLocalSlots(compiler As CompilerKind, allLocalNames As ImmutableArray(Of String)) As ImmutableSortedSet(Of Integer)
             Dim builder = ArrayBuilder(Of Integer).GetInstance()
             For Each localName In allLocalNames
                 Dim hoistedLocalName As String = Nothing
                 Dim hoistedLocalSlot As Integer = 0
-                If localName IsNot Nothing AndAlso GeneratedNames2.TryParseStateMachineHoistedUserVariableName(localName, hoistedLocalName, hoistedLocalSlot) Then
+                If localName IsNot Nothing AndAlso compiler.TryParseStateMachineHoistedUserVariableName(localName, hoistedLocalName, hoistedLocalSlot) Then
                     builder.Add(hoistedLocalSlot)
                 End If
             Next
@@ -617,6 +617,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
         ''' "$STATIC$[methodname]$[methodsignature]$[localname]".
         ''' </summary>
         Private Shared Sub GetStaticLocals(
+            compiler As CompilerKind,
             builder As ArrayBuilder(Of LocalSymbol),
             method As MethodSymbol,
             methodHandle As MethodDefinitionHandle,
@@ -634,7 +635,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
                 Dim methodName As String = Nothing
                 Dim methodSignature As String = Nothing
                 Dim localName As String = Nothing
-                If GeneratedNames2.TryParseStaticLocalFieldName(member.Name, methodName, methodSignature, localName) AndAlso
+                If compiler.TryParseStaticLocalFieldName(member.Name, methodName, methodSignature, localName) AndAlso
                     String.Equals(methodName, method.Name, StringComparison.Ordinal) AndAlso
                     String.Equals(methodSignature, GetMethodSignatureString(metadataDecoder, methodHandle), StringComparison.Ordinal) Then
                     builder.Add(New EEStaticLocalSymbol(method, DirectCast(member, FieldSymbol), localName))

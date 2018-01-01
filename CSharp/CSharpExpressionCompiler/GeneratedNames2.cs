@@ -5,31 +5,41 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
 {
     static class GeneratedNames2
     {
-        public static GeneratedNameKind GetKind(string name)
+        public static GeneratedNameKind GetKind(this CompilerKind compiler, string name)
         {
-            return CommonGeneratedNames.GetKind(name).ToGeneratedNameKind();
+            return CommonGeneratedNames.GetKind(compiler, name).ToGeneratedNameKind();
         }
 
-        public static bool IsSynthesizedLocalName(string name)
+        public static bool IsSynthesizedLocalName(this CompilerKind compiler, string name)
         {
-            return CommonGeneratedNames.IsSynthesizedLocalName(name);
+            return CommonGeneratedNames.IsSynthesizedLocalName(compiler, name);
         }
 
-        public static bool TryParseSlotIndex(string fieldName, out int slotIndex)
+        public static bool TryParseSlotIndex(this CompilerKind compiler, string fieldName, out int slotIndex)
         {
-            return CommonGeneratedNames.TryParseSlotIndex(fieldName, out slotIndex);
+            return CommonGeneratedNames.TryParseSlotIndex(compiler, fieldName, out slotIndex);
         }
 
-        public static bool TryParseSourceMethodNameFromGeneratedName(string generatedName, GeneratedNameKind requiredKind, out string methodName)
+        public static bool TryParseSourceMethodNameFromGeneratedName(this CompilerKind compiler, string generatedName, GeneratedNameKind requiredKind, out string methodName)
         {
-            return CommonGeneratedNames.TryParseSourceMethodNameFromGeneratedName(generatedName, requiredKind.ToCommonGeneratedNameKind(), out methodName);
+            return CommonGeneratedNames.TryParseSourceMethodNameFromGeneratedName(compiler, generatedName, requiredKind.ToCommonGeneratedNameKind(), out methodName);
         }
 
-        public static bool TryParseGeneratedName(string name, out GeneratedNameKind kind, out string part)
+        public static bool TryParseGeneratedName(this CompilerKind compiler, string name, out GeneratedNameKind kind, out string part)
         {
-            var res = CommonGeneratedNames.TryParseGeneratedName(name, out var commonKind, out part);
+            var res = CommonGeneratedNames.TryParseGeneratedName(compiler, name, out var commonKind, out part);
             kind = commonKind.ToGeneratedNameKind();
             return res;
+        }
+
+        public static string GetUnmangledTypeParameterName(this CompilerKind compiler, string typeParameterName)
+        {
+            return CommonGeneratedNames.GetUnmangledTypeParameterName(compiler, typeParameterName);
+        }
+
+        public static bool IsDisplayClassInstance(this CompilerKind compiler, string fieldType, string fieldName)
+        {
+            return CommonGeneratedNames.IsDisplayClassInstance(compiler, fieldType, fieldName);
         }
     }
 }

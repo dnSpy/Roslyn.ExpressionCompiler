@@ -18,6 +18,8 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
     Friend NotInheritable Class EEMethodSymbol
         Inherits MethodSymbol
 
+        Private ReadOnly _compiler As CompilerKind
+
         Friend ReadOnly TypeMap As TypeSubstitution
         Friend ReadOnly SubstitutedSourceMethod As MethodSymbol
         Friend ReadOnly Locals As ImmutableArray(Of LocalSymbol)
@@ -49,6 +51,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
         Friend Sub New(
             compilation As VisualBasicCompilation,
             container As EENamedTypeSymbol,
+            compiler As CompilerKind,
             name As String,
             location As Location,
             sourceMethod As MethodSymbol,
@@ -64,6 +67,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
             Debug.Assert(sourceLocals.All(Function(l) l.ContainingSymbol = sourceMethod))
 
             _compilation = compilation
+            _compiler = compiler
             _container = container
             _name = name
             _locations = ImmutableArray.Create(location)
@@ -83,7 +87,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
 
             Dim getTypeMap As New Func(Of TypeSubstitution)(Function() TypeMap)
             _typeParameters = sourceMethodTypeParameters.SelectAsArray(
-                Function(tp As TypeParameterSymbol, i As Integer, arg As Object) DirectCast(New EETypeParameterSymbol(Me, tp, i, getTypeMap), TypeParameterSymbol),
+                Function(tp As TypeParameterSymbol, i As Integer, arg As Object) DirectCast(New EETypeParameterSymbol(Me._compiler, Me, tp, i, getTypeMap), TypeParameterSymbol),
                 DirectCast(Nothing, Object))
             _allTypeParameters = container.TypeParameters.Concat(_typeParameters)
             Me.TypeMap = TypeSubstitution.Create(sourceMethod, allSourceTypeParameters, ImmutableArrayExtensions.Cast(Of TypeParameterSymbol, TypeSymbol)(_allTypeParameters))
@@ -557,6 +561,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
                 ' Rewrite references to "Me" to refer to this method's "Me" parameter.
                 ' Rewrite variables within body to reference existing display classes.
                 newBody = DirectCast(CapturedVariableRewriter.Rewrite(
+                    _compiler,
                     If(Me.SubstitutedSourceMethod.IsShared, Nothing, Me.Parameters(0)),
                     displayClassVariables,
                     newBody,

@@ -13,7 +13,6 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
             switch (kind)
             {
             case CommonGeneratedNameKind.None: return GeneratedNameKind.None;
-            case CommonGeneratedNameKind.HoistedMeField: return GeneratedNameKind.ThisProxyField;
             case CommonGeneratedNameKind.HoistedSynthesizedLocalField: return GeneratedNameKind.HoistedSynthesizedLocalField;
             case CommonGeneratedNameKind.HoistedUserVariableField: return GeneratedNameKind.HoistedLocalField;
             case CommonGeneratedNameKind.IteratorCurrentField: return GeneratedNameKind.IteratorCurrentBackingField;
@@ -28,6 +27,7 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
             case CommonGeneratedNameKind.AnonymousType: return GeneratedNameKind.AnonymousType;
             case CommonGeneratedNameKind.LambdaCacheField: return GeneratedNameKind.LambdaCacheField;
             case CommonGeneratedNameKind.LambdaDisplayClass: return GeneratedNameKind.LambdaDisplayClass;
+            case CommonGeneratedNameKind.HoistedSpecialVariableField: return GeneratedNameKind.HoistedLocalField;
             case CommonGeneratedNameKind.IteratorCurrentBackingField: return GeneratedNameKind.IteratorCurrentBackingField;
             case CommonGeneratedNameKind.StateMachineParameterProxyField: return GeneratedNameKind.StateMachineParameterProxyField;
             case CommonGeneratedNameKind.ThisProxyField: return GeneratedNameKind.ThisProxyField;

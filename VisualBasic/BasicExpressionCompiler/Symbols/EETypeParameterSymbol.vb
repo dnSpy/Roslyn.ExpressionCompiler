@@ -1,6 +1,7 @@
 ﻿' Copyright (c) Microsoft.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
 Imports System.Collections.Immutable
+Imports Microsoft.CodeAnalysis.ExpressionEvaluator
 Imports Microsoft.CodeAnalysis.VisualBasic.Symbols
 Imports Roslyn.Utilities
 
@@ -8,18 +9,21 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
     Friend NotInheritable Class EETypeParameterSymbol
         Inherits TypeParameterSymbol
 
+        Private ReadOnly _compiler As CompilerKind
         Private ReadOnly _container As Symbol
         Private ReadOnly _sourceTypeParameterSymbol As TypeParameterSymbol
         Private ReadOnly _ordinal As Integer
         Private ReadOnly _getTypeParameterMap As Func(Of TypeSubstitution)
 
         Public Sub New(
+            compiler As CompilerKind,
             container As Symbol,
             sourceTypeParameterSymbol As TypeParameterSymbol,
             ordinal As Integer,
             getTypeParameterMap As Func(Of TypeSubstitution))
 
             Debug.Assert(container.Kind = SymbolKind.NamedType OrElse container.Kind = SymbolKind.Method)
+            _compiler = compiler
             _container = container
             _sourceTypeParameterSymbol = sourceTypeParameterSymbol
             _ordinal = ordinal
@@ -34,7 +38,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
 
         Public Overrides ReadOnly Property Name As String
             Get
-                Return _sourceTypeParameterSymbol.GetUnmangledName()
+                Return _sourceTypeParameterSymbol.GetUnmangledName(_compiler)
             End Get
         End Property
 

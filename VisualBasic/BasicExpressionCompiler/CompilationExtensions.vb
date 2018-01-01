@@ -23,13 +23,13 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
         End Function
 
         <Extension>
-        Friend Function GetSourceMethod(compilation As VisualBasicCompilation, moduleVersionId As Guid, methodToken As Integer) As PEMethodSymbol
+        Friend Function GetSourceMethod(compilation As VisualBasicCompilation, compiler As CompilerKind, moduleVersionId As Guid, methodToken As Integer) As PEMethodSymbol
             Dim methodHandle = CType(MetadataTokens.Handle(methodToken), MethodDefinitionHandle)
             Dim method = GetMethod(compilation, moduleVersionId, methodHandle)
             Dim metadataDecoder = New MetadataDecoder(DirectCast(method.ContainingModule, PEModuleSymbol))
             Dim containingType = method.ContainingType
             Dim sourceMethodName As String = Nothing
-            If GeneratedNames2.TryParseStateMachineTypeName(containingType.Name, sourceMethodName) Then
+            If compiler.TryParseStateMachineTypeName(containingType.Name, sourceMethodName) Then
                 For Each member In containingType.ContainingType.GetMembers(sourceMethodName)
                     Dim candidateMethod = TryCast(member, PEMethodSymbol)
                     If candidateMethod IsNot Nothing Then

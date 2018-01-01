@@ -26,6 +26,7 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator
             ImmutableArray<string> parameterNames = default;
             ImmutableArray<TLocalSymbol> localConstants;
             ILSpan reuseSpan;
+            CompilerKind compiler = isVisualBasicMethod ? CompilerKind.MicrosoftVisualBasic : CompilerKind.MicrosoftCSharp;
 
             var methodHandle = GetDeltaRelativeMethodDefinitionHandle(reader, methodToken);
 
@@ -56,7 +57,8 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator
                 localVariableNames,
                 parameterNames,
                 localConstants,
-                reuseSpan);
+                reuseSpan,
+                compiler);
         }
 
         /// <summary>

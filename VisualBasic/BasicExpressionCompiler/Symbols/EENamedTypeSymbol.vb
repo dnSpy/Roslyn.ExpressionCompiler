@@ -4,6 +4,7 @@ Imports System.Collections.Immutable
 Imports System.Runtime.InteropServices
 Imports System.Threading
 Imports Microsoft.Cci
+Imports Microsoft.CodeAnalysis.ExpressionEvaluator
 Imports Microsoft.CodeAnalysis.VisualBasic.Symbols
 Imports Roslyn.Utilities
 
@@ -22,6 +23,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
         Private ReadOnly _methods As ImmutableArray(Of MethodSymbol)
 
         Friend Sub New(
+            compiler As CompilerKind,
             container As NamespaceSymbol,
             baseType As NamedTypeSymbol,
             syntax As VisualBasicSyntaxNode,
@@ -31,7 +33,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
             context As CompilationContext,
             generateMethodBody As GenerateMethodBody)
 
-            MyClass.New(container, baseType, syntax, currentFrame, typeName, Function(m, t) ImmutableArray.Create(Of MethodSymbol)(context.CreateMethod(t, methodName, syntax, generateMethodBody)))
+            MyClass.New(compiler, container, baseType, syntax, currentFrame, typeName, Function(m, t) ImmutableArray.Create(Of MethodSymbol)(context.CreateMethod(t, methodName, syntax, generateMethodBody)))
         End Sub
 
         Friend Sub New(
@@ -55,6 +57,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
         End Sub
 
         Friend Sub New(
+            compiler As CompilerKind,
             container As NamespaceSymbol,
             baseType As NamedTypeSymbol,
             syntax As VisualBasicSyntaxNode,
@@ -82,7 +85,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
             Dim typeMap As TypeSubstitution = Nothing
             Dim getTypeMap = New Func(Of TypeSubstitution)(Function() typeMap)
             _typeParameters = SourceTypeParameters.SelectAsArray(
-                Function(tp As TypeParameterSymbol, i As Integer, arg As Object) DirectCast(New EETypeParameterSymbol(Me, tp, i, getTypeMap), TypeParameterSymbol),
+                Function(tp As TypeParameterSymbol, i As Integer, arg As Object) DirectCast(New EETypeParameterSymbol(compiler, Me, tp, i, getTypeMap), TypeParameterSymbol),
                 DirectCast(Nothing, Object))
 
             typeMap = TypeSubstitution.Create(sourceType, SourceTypeParameters, ImmutableArrayExtensions.Cast(Of TypeParameterSymbol, TypeSymbol)(_typeParameters))

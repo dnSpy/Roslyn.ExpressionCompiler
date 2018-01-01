@@ -5,12 +5,14 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Threading;
 using Microsoft.CodeAnalysis.CSharp.Symbols;
+using Microsoft.CodeAnalysis.ExpressionEvaluator;
 using Roslyn.Utilities;
 
 namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
 {
     internal sealed class EETypeParameterSymbol : TypeParameterSymbol
     {
+        private readonly CompilerKind _compiler;
         private readonly Symbol _container;
         private readonly TypeParameterSymbol _sourceTypeParameter;
         private readonly int _ordinal;
@@ -18,12 +20,14 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
         private TypeMap _lazyTypeMap;
 
         public EETypeParameterSymbol(
+            CompilerKind compiler,
             Symbol container,
             TypeParameterSymbol sourceTypeParameter,
             int ordinal,
             Func<TypeMap> getTypeMap)
         {
             Debug.Assert((container.Kind == SymbolKind.NamedType) || (container.Kind == SymbolKind.Method));
+            _compiler = compiler;
             _container = container;
             _sourceTypeParameter = sourceTypeParameter;
             _ordinal = ordinal;
@@ -37,7 +41,7 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
 
         public override string Name
         {
-            get { return _sourceTypeParameter.Name; }
+            get { return _compiler.GetUnmangledTypeParameterName(_sourceTypeParameter.Name); }
         }
 
         public override ImmutableArray<SyntaxReference> DeclaringSyntaxReferences

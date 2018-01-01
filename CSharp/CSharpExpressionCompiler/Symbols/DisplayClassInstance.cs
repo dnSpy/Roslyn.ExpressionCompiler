@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
 using Microsoft.CodeAnalysis.CSharp.Symbols;
+using Microsoft.CodeAnalysis.ExpressionEvaluator;
 using System;
 using System.Diagnostics;
 
@@ -55,15 +56,17 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
     internal sealed class DisplayClassInstanceFromParameter : DisplayClassInstance
     {
         internal readonly ParameterSymbol Parameter;
+        readonly CompilerKind compiler;
 
-        internal DisplayClassInstanceFromParameter(ParameterSymbol parameter)
+        internal DisplayClassInstanceFromParameter(CompilerKind compiler, ParameterSymbol parameter)
         {
             Debug.Assert((object)parameter != null);
             Debug.Assert(parameter.Name.EndsWith("this", StringComparison.Ordinal) ||
                 parameter.Name.Equals("", StringComparison.Ordinal) || // unnamed
                 parameter.Name.Equals("value", StringComparison.Ordinal) || // display class instance passed to local function as parameter
-                GeneratedNames2.GetKind(parameter.Name) == GeneratedNameKind.TransparentIdentifier);
+                compiler.GetKind(parameter.Name) == GeneratedNameKind.TransparentIdentifier);
             this.Parameter = parameter;
+            this.compiler = compiler;
         }
 
         internal override Symbol ContainingSymbol
@@ -83,7 +86,7 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
                 ? this.Parameter.Ordinal
                 : (this.Parameter.Ordinal + 1);
             var otherParameter = method.Parameters[otherOrdinal];
-            return new DisplayClassInstanceFromParameter(otherParameter);
+            return new DisplayClassInstanceFromParameter(compiler, otherParameter);
         }
 
         internal override BoundExpression ToBoundExpression(SyntaxNode syntax)

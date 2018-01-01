@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
 using Microsoft.CodeAnalysis.CSharp.Symbols;
+using Microsoft.CodeAnalysis.ExpressionEvaluator;
 using Roslyn.Utilities;
 using System.Collections.Immutable;
 using System.Diagnostics;
@@ -20,15 +21,17 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
     /// </summary>
     internal sealed class DisplayClassVariable
     {
+        readonly CompilerKind compiler;
         internal readonly string Name;
         internal readonly DisplayClassVariableKind Kind;
         internal readonly DisplayClassInstance DisplayClassInstance;
         internal readonly ConsList<FieldSymbol> DisplayClassFields;
 
-        internal DisplayClassVariable(string name, DisplayClassVariableKind kind, DisplayClassInstance displayClassInstance, ConsList<FieldSymbol> displayClassFields)
+        internal DisplayClassVariable(CompilerKind compiler, string name, DisplayClassVariableKind kind, DisplayClassInstance displayClassInstance, ConsList<FieldSymbol> displayClassFields)
         {
             Debug.Assert(displayClassFields.Any());
 
+            this.compiler = compiler;
             this.Name = name;
             this.Kind = kind;
             this.DisplayClassInstance = displayClassInstance;
@@ -70,26 +73,26 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
 
         internal DisplayClassVariable SubstituteFields(DisplayClassInstance otherInstance, TypeMap typeMap)
         {
-            var otherFields = SubstituteFields(this.DisplayClassFields, typeMap);
-            return new DisplayClassVariable(this.Name, this.Kind, otherInstance, otherFields);
+            var otherFields = SubstituteFields(this.compiler, this.DisplayClassFields, typeMap);
+            return new DisplayClassVariable(this.compiler, this.Name, this.Kind, otherInstance, otherFields);
         }
 
-        private static ConsList<FieldSymbol> SubstituteFields(ConsList<FieldSymbol> fields, TypeMap typeMap)
+        private static ConsList<FieldSymbol> SubstituteFields(CompilerKind compiler, ConsList<FieldSymbol> fields, TypeMap typeMap)
         {
             if (!fields.Any())
             {
                 return ConsList<FieldSymbol>.Empty;
             }
 
-            var head = SubstituteField(fields.Head, typeMap);
-            var tail = SubstituteFields(fields.Tail, typeMap);
+            var head = SubstituteField(compiler, fields.Head, typeMap);
+            var tail = SubstituteFields(compiler, fields.Tail, typeMap);
             return tail.Prepend(head);
         }
 
-        private static FieldSymbol SubstituteField(FieldSymbol field, TypeMap typeMap)
+        private static FieldSymbol SubstituteField(CompilerKind compiler, FieldSymbol field, TypeMap typeMap)
         {
             Debug.Assert(!field.IsStatic);
-            Debug.Assert(!field.IsReadOnly || GeneratedNames2.GetKind(field.Name) == GeneratedNameKind.AnonymousTypeField);
+            Debug.Assert(!field.IsReadOnly || compiler.GetKind(field.Name) == GeneratedNameKind.AnonymousTypeField);
             Debug.Assert(field.CustomModifiers.Length == 0);
             // CONSIDER: Instead of digging fields out of the unsubstituted type and then performing substitution
             // on each one individually, we could dig fields out of the substituted type.
