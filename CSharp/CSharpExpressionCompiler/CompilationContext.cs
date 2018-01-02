@@ -1487,8 +1487,8 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
                         break;
                     case GeneratedNameKind.None:
                         // A reference to a parameter or local.
-                        variableName = fieldName;
-                        if (parameterNames.Contains(variableName))
+                        variableName = part ?? fieldName;
+                        if (parameterNames.Contains(fieldName))
                         {
                             variableKind = DisplayClassVariableKind.Parameter;
                             hoistedParameterNames.Add(variableName);

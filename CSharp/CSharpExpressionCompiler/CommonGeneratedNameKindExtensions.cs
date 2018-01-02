@@ -14,7 +14,8 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
             {
             case CommonGeneratedNameKind.None: return GeneratedNameKind.None;
             case CommonGeneratedNameKind.HoistedSynthesizedLocalField: return GeneratedNameKind.HoistedSynthesizedLocalField;
-            case CommonGeneratedNameKind.HoistedUserVariableField: return GeneratedNameKind.HoistedLocalField;
+            // Return None so it will be recognized as a parameter (iterators/async methods)
+            case CommonGeneratedNameKind.HoistedUserVariableField: return GeneratedNameKind.None;
             case CommonGeneratedNameKind.IteratorCurrentField: return GeneratedNameKind.IteratorCurrentBackingField;
             case CommonGeneratedNameKind.IteratorInitialThreadIdField: return GeneratedNameKind.IteratorCurrentThreadIdField;
             case CommonGeneratedNameKind.IteratorParameterProxyField: return GeneratedNameKind.StateMachineParameterProxyField;

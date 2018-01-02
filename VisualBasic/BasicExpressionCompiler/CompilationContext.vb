@@ -1281,6 +1281,11 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
                     Continue For
                 ElseIf nameKind = CommonGeneratedNameKind.IteratorCurrentBackingField OrElse nameKind = CommonGeneratedNameKind.IteratorCurrentField OrElse nameKind = CommonGeneratedNameKind.IteratorCurrentThreadIdField OrElse nameKind = CommonGeneratedNameKind.IteratorInitialThreadIdField Then
                     Continue For
+                ElseIf nameKind = CommonGeneratedNameKind.StateMachineParameterProxyField Then
+                    Continue For
+                ElseIf nameKind = CommonGeneratedNameKind.None AndAlso Not (fieldName.StartsWith("<") OrElse fieldName.StartsWith("$") OrElse fieldName.StartsWith("CS$")) Then
+                    variableKind = DisplayClassVariableKind.Parameter
+                    variableName = fieldName
                 Else
                     variableKind = DisplayClassVariableKind.Local
                     variableName = fieldName
