@@ -1277,7 +1277,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
                     ' A transparent identifier (field) in an anonymous type synthesized for a transparent identifier.
                     Debug.Assert(Not field.IsShared)
                     Continue For
-                ElseIf nameKind = CommonGeneratedNameKind.StateMachineAwaiterField OrElse nameKind = CommonGeneratedNameKind.StateMachineDisposingField OrElse nameKind = CommonGeneratedNameKind.StateMachineStackField OrElse nameKind = CommonGeneratedNameKind.StateMachineStateField Then
+                ElseIf nameKind = CommonGeneratedNameKind.StateMachineAwaiterField OrElse nameKind = CommonGeneratedNameKind.StateMachineDisposingField OrElse nameKind = CommonGeneratedNameKind.StateMachineStateField OrElse nameKind = CommonGeneratedNameKind.AsyncBuilderField Then
                     Continue For
                 ElseIf nameKind = CommonGeneratedNameKind.IteratorCurrentBackingField OrElse nameKind = CommonGeneratedNameKind.IteratorCurrentField OrElse nameKind = CommonGeneratedNameKind.IteratorCurrentThreadIdField OrElse nameKind = CommonGeneratedNameKind.IteratorInitialThreadIdField Then
                     Continue For

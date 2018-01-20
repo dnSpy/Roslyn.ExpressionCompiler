@@ -33,7 +33,7 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator
         HoistedUserVariableField,
         IteratorCurrentField,
         IteratorInitialThreadIdField,
-        IteratorParameterProxyField,
+        //IteratorParameterProxyField,
         StateMachineAwaiterField,
         StateMachineStateField,
         StateMachineHoistedUserVariableField,
@@ -77,11 +77,10 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator
         Deprecated_ComrefCallLocal,
         //HoistedSynthesizedLocalField,
         AsyncBuilderField,
-        AwaiterField,
+        //AwaiterField,
 
         // mcs
         StateMachineDisposingField,
-        StateMachineStackField,
     }
 
     internal abstract class CommonGeneratedNames
@@ -305,12 +304,12 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator
                         }
                         if (name.StartsWith("$awaiter", StringComparison.Ordinal))
                         {
-                            kind = CommonGeneratedNameKind.AwaiterField;
+                            kind = CommonGeneratedNameKind.StateMachineAwaiterField;
                             return true;
                         }
                         if (name.StartsWith("$stack", StringComparison.Ordinal))
                         {
-                            kind = CommonGeneratedNameKind.StateMachineStackField;
+                            kind = CommonGeneratedNameKind.HoistedSynthesizedLocalField;
                             return true;
                         }
                         break;
@@ -703,7 +702,7 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator
                             case 'b': kind = CommonGeneratedNameKind.LambdaMethod; break;
                             case 'c': kind = CommonGeneratedNameKind.LambdaDisplayClass; break;
                             case 'd': kind = CommonGeneratedNameKind.StateMachineType; break;
-                            case 'u': kind = CommonGeneratedNameKind.AwaiterField; break;
+                            case 'u': kind = CommonGeneratedNameKind.StateMachineAwaiterField; break;
                             case 's': kind = CommonGeneratedNameKind.HoistedSynthesizedLocalField; break;
                             case '1': kind = CommonGeneratedNameKind.StateMachineStateField; break;
                             case '2': kind = CommonGeneratedNameKind.IteratorCurrentBackingField; break;
@@ -784,7 +783,7 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator
                 }
                 else if (name.StartsWith(VisualBasic_StringConstants.IteratorParameterProxyPrefix, StringComparison.Ordinal))
                 {
-                    return CommonGeneratedNameKind.IteratorParameterProxyField;
+                    return CommonGeneratedNameKind.StateMachineParameterProxyField;
                 }
                 else if (name.StartsWith(VisualBasic_StringConstants.StateMachineAwaiterFieldPrefix, StringComparison.Ordinal))
                 {
@@ -827,6 +826,14 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator
                 else if (name.StartsWith(VisualBasic_StringConstants.LambdaMethodNamePrefix, StringComparison.Ordinal))
                 {
                     return CommonGeneratedNameKind.LambdaMethod;
+                }
+                else if (name.Equals(VisualBasic_StringConstants.StateMachineBuilderFieldName, StringComparison.Ordinal))
+                {
+                    return CommonGeneratedNameKind.AsyncBuilderField;
+                }
+                else if (name.Equals(VisualBasic_StringConstants.StateMachineStateFieldName, StringComparison.Ordinal))
+                {
+                    return CommonGeneratedNameKind.StateMachineStateField;
                 }
                 return CommonGeneratedNameKind.None;
             }

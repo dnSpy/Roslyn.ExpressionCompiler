@@ -1499,6 +1499,11 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
                         }
                         Debug.Assert(!field.IsStatic);
                         break;
+                    case GeneratedNameKind.HoistedSynthesizedLocalField:
+                        // The decompiler creates locals from these fields, make sure they're shown in the locals window
+                        variableName = fieldName;
+                        variableKind = DisplayClassVariableKind.Local;
+                        break;
                     default:
                         continue;
                 }

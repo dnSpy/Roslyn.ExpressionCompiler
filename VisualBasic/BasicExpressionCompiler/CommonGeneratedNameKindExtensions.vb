@@ -18,8 +18,6 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
                     Return GeneratedNameKind.IteratorCurrentField
                 Case CommonGeneratedNameKind.IteratorInitialThreadIdField
                     Return GeneratedNameKind.IteratorInitialThreadIdField
-                Case CommonGeneratedNameKind.IteratorParameterProxyField
-                    Return GeneratedNameKind.IteratorParameterProxyField
                 Case CommonGeneratedNameKind.StateMachineAwaiterField
                     Return GeneratedNameKind.StateMachineAwaiterField
                 Case CommonGeneratedNameKind.StateMachineStateField
@@ -88,11 +86,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
                     Return hiddenKind
                 Case CommonGeneratedNameKind.AsyncBuilderField
                     Return hiddenKind
-                Case CommonGeneratedNameKind.AwaiterField
-                    Return GeneratedNameKind.StateMachineAwaiterField
                 Case CommonGeneratedNameKind.StateMachineDisposingField
-                    Return hiddenKind
-                Case CommonGeneratedNameKind.StateMachineStackField
                     Return hiddenKind
                 Case Else
                     Debug.Fail($"Unknown kind: {kind}")

@@ -18,7 +18,6 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
             case CommonGeneratedNameKind.HoistedUserVariableField: return GeneratedNameKind.None;
             case CommonGeneratedNameKind.IteratorCurrentField: return GeneratedNameKind.IteratorCurrentBackingField;
             case CommonGeneratedNameKind.IteratorInitialThreadIdField: return GeneratedNameKind.IteratorCurrentThreadIdField;
-            case CommonGeneratedNameKind.IteratorParameterProxyField: return GeneratedNameKind.StateMachineParameterProxyField;
             case CommonGeneratedNameKind.StateMachineAwaiterField: return GeneratedNameKind.AwaiterField;
             case CommonGeneratedNameKind.StateMachineStateField: return GeneratedNameKind.StateMachineStateField;
             case CommonGeneratedNameKind.StateMachineHoistedUserVariableField: return GeneratedNameKind.HoistedLocalField;
@@ -53,9 +52,7 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
             case CommonGeneratedNameKind.Deprecated_DynamicDelegate: return GeneratedNameKind.Deprecated_DynamicDelegate;
             case CommonGeneratedNameKind.Deprecated_ComrefCallLocal: return GeneratedNameKind.Deprecated_ComrefCallLocal;
             case CommonGeneratedNameKind.AsyncBuilderField: return GeneratedNameKind.AsyncBuilderField;
-            case CommonGeneratedNameKind.AwaiterField: return GeneratedNameKind.AwaiterField;
             case CommonGeneratedNameKind.StateMachineDisposingField: return hiddenKind;
-            case CommonGeneratedNameKind.StateMachineStackField: return hiddenKind;
             default:
                 Debug.Fail($"Unknown kind: {kind}");
                 return hiddenKind;
@@ -95,7 +92,7 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
             case GeneratedNameKind.Deprecated_ComrefCallLocal: return CommonGeneratedNameKind.Deprecated_ComrefCallLocal;
             case GeneratedNameKind.HoistedSynthesizedLocalField: return CommonGeneratedNameKind.HoistedSynthesizedLocalField;
             case GeneratedNameKind.AsyncBuilderField: return CommonGeneratedNameKind.AsyncBuilderField;
-            case GeneratedNameKind.AwaiterField: return CommonGeneratedNameKind.AwaiterField;
+            case GeneratedNameKind.AwaiterField: return CommonGeneratedNameKind.StateMachineAwaiterField;
             default:
                 Debug.Fail($"Unknown kind: {kind}");
                 return CommonGeneratedNameKind.None;
