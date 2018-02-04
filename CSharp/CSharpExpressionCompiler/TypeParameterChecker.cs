@@ -12,13 +12,13 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
         [Conditional("DEBUG")]
         public static void Check(Symbol symbol, ImmutableArray<TypeParameterSymbol> acceptableTypeParameters)
         {
-            new TypeParameterChecker(acceptableTypeParameters).Visit(symbol);
+            //new TypeParameterChecker(acceptableTypeParameters).Visit(symbol);
         }
 
         [Conditional("DEBUG")]
         public static void Check(BoundNode node, ImmutableArray<TypeParameterSymbol> acceptableTypeParameters)
         {
-            new BlockChecker(new TypeParameterChecker(acceptableTypeParameters)).Visit(node);
+            //new BlockChecker(new TypeParameterChecker(acceptableTypeParameters)).Visit(node);
         }
 
         private TypeParameterChecker(ImmutableArray<TypeParameterSymbol> acceptableTypeParameters)

@@ -10,14 +10,14 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
 
         <Conditional("DEBUG")>
         Public Shared Sub Check(symbol As Symbol, acceptableTypeParameters As ImmutableArray(Of TypeParameterSymbol))
-            Dim checker As New TypeParameterChecker(acceptableTypeParameters)
-            checker.Visit(symbol)
+            'Dim checker As New TypeParameterChecker(acceptableTypeParameters)
+            'checker.Visit(symbol)
         End Sub
 
         <Conditional("DEBUG")>
         Public Shared Sub Check(node As BoundNode, acceptableTypeParameters As ImmutableArray(Of TypeParameterSymbol))
-            Dim checker As New BlockChecker(New TypeParameterChecker(acceptableTypeParameters))
-            checker.Visit(node)
+            'Dim checker As New BlockChecker(New TypeParameterChecker(acceptableTypeParameters))
+            'checker.Visit(node)
         End Sub
 
         Private Sub New(acceptableTypeParameters As ImmutableArray(Of TypeParameterSymbol))
