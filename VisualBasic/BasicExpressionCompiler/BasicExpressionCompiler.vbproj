@@ -6,13 +6,15 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{4B38BFCF-4253-48E7-8AD2-861AE12F41DF}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <AssemblyName>Roslyn.ExpressionEvaluator.VisualBasic.ExpressionCompiler.UnitTests</AssemblyName>
+    <AssemblyName>Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <MyType>Windows</MyType>
     <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
     <SignAssembly>True</SignAssembly>
-    <AssemblyOriginatorKeyFile>..\..\..\dnSpy.Roslyn.Internal\RoslynInternalKey.Private.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>..\..\..\..\..\dnSpy.snk</AssemblyOriginatorKeyFile>
     <Features>strict</Features>
+    <MakeEverythingPublicAssemblies>Microsoft.CodeAnalysis;Microsoft.CodeAnalysis.VisualBasic</MakeEverythingPublicAssemblies>
+    <MakeEverythingPublicIVTString>$(AssemblyName), PublicKey=0024000004800000940000000602000000240000525341310004000001000100858d4f2519af95faeca8d359daa2078b20826765450f330daff3c5ec378adf9eb8e168eff8069ba51e15c1992d0d72b73129ed7a014f62863fa80a80dd9b010b8211c4d4c70ed26b9b65370007b0341685c98cc4cd2d16814d9581db82b382fb8ee838e1b8a2bd1c759e43ddda209e35cde530a7ba6a517787c04a3f283ea1b5</MakeEverythingPublicIVTString>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -20,7 +22,7 @@
     <DefineDebug>true</DefineDebug>
     <DefineTrace>true</DefineTrace>
     <OutputPath>bin\Debug\</OutputPath>
-    <DocumentationFile>BasicExpressionCompiler.xml</DocumentationFile>
+    <DocumentationFile>Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator.xml</DocumentationFile>
     <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -30,7 +32,7 @@
     <DefineTrace>true</DefineTrace>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DocumentationFile>BasicExpressionCompiler.xml</DocumentationFile>
+    <DocumentationFile>Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator.xml</DocumentationFile>
     <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
   </PropertyGroup>
   <PropertyGroup>
@@ -73,6 +75,7 @@
   <ItemGroup>
     <Compile Include="CommonGeneratedNameKindExtensions.vb" />
     <Compile Include="GeneratedNames2.vb" />
+    <Compile Include="MakeEverythingPublic.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
   </ItemGroup>
   <ItemGroup>
@@ -143,5 +146,6 @@
       <Name>ExpressionCompiler</Name>
     </ProjectReference>
   </ItemGroup>
+  <Import Project="$(MSBuildProjectDirectory)\..\..\..\..\..\Build\MakeEverythingPublic\MakeEverythingPublic.tasks" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
 </Project>
