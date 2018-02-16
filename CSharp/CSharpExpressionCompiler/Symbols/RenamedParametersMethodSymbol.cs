@@ -7,6 +7,7 @@ using System.Reflection;
 using Microsoft.Cci;
 using Microsoft.CodeAnalysis.CSharp.Symbols;
 using Microsoft.CodeAnalysis.ExpressionEvaluator;
+using Microsoft.CodeAnalysis.PooledObjects;
 
 namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
 {
@@ -59,7 +60,7 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
         public override bool IsVararg => _originalMethod.IsVararg;
         public override bool ReturnsVoid => _originalMethod.ReturnsVoid;
         public override bool IsAsync => _originalMethod.IsAsync;
-        internal override RefKind RefKind => _originalMethod.RefKind;
+        public override RefKind RefKind => _originalMethod.RefKind;
         public override TypeSymbol ReturnType => _originalMethod.ReturnType;
         public override ImmutableArray<TypeSymbol> TypeArguments => _originalMethod.TypeArguments;
         public override ImmutableArray<TypeParameterSymbol> TypeParameters => _originalMethod.TypeParameters;

@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "Microsoft.CodeAnalysis.VisualBasic": "2.4.0",
+    "Microsoft.CodeAnalysis.VisualBasic": "2.6.1"
   },
   "frameworks": {
     "net471": {}

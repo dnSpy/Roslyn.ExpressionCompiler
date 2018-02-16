@@ -14,6 +14,7 @@ Imports Microsoft.CodeAnalysis.Debugging
 Imports Microsoft.CodeAnalysis.Emit
 Imports Microsoft.CodeAnalysis.ExpressionEvaluator
 Imports Microsoft.CodeAnalysis.ExpressionEvaluator.DnSpy
+Imports Microsoft.CodeAnalysis.PooledObjects
 Imports Microsoft.CodeAnalysis.VisualBasic.Symbols
 Imports Microsoft.CodeAnalysis.VisualBasic.Symbols.Metadata.PE
 Imports Microsoft.CodeAnalysis.VisualBasic.Syntax
@@ -36,6 +37,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
         Friend ReadOnly Compilation As VisualBasicCompilation
 
         Private ReadOnly _currentFrame As MethodSymbol
+        Private ReadOnly _currentSourceMethod As MethodSymbol
         Private ReadOnly _locals As ImmutableArray(Of LocalSymbol)
         Private ReadOnly _inScopeHoistedLocalSlots As ImmutableSortedSet(Of Integer)
         Private ReadOnly _methodDebugInfo As MethodDebugInfo(Of TypeSymbol, LocalSymbol)
@@ -44,6 +46,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
             methodContextReuseConstraints As MethodContextReuseConstraints?,
             compilation As VisualBasicCompilation,
             currentFrame As MethodSymbol,
+            currentSourceMethod As MethodSymbol,
             locals As ImmutableArray(Of LocalSymbol),
             inScopeHoistedLocalSlots As ImmutableSortedSet(Of Integer),
             methodDebugInfo As MethodDebugInfo(Of TypeSymbol, LocalSymbol))
@@ -51,6 +54,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
             Me.MethodContextReuseConstraints = methodContextReuseConstraints
             Me.Compilation = compilation
             _currentFrame = currentFrame
+            _currentSourceMethod = currentSourceMethod
             _locals = locals
             _inScopeHoistedLocalSlots = inScopeHoistedLocalSlots
             _methodDebugInfo = methodDebugInfo
@@ -133,6 +137,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
                 Nothing,
                 compilation,
                 currentFrame,
+                Nothing,
                 locals:=Nothing,
                 inScopeHoistedLocalSlots:=Nothing,
                 methodDebugInfo:=MethodDebugInfo(Of TypeSymbol, LocalSymbol).None)
@@ -244,6 +249,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
 #If 0 Then
             End If
 #End If
+            Dim currentSourceMethod = compilation.GetSourceMethod(debugInfo.Compiler, moduleVersionId, methodHandle)
 
             Dim reuseSpan = debugInfo.ReuseSpan
 
@@ -267,6 +273,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
                 New MethodContextReuseConstraints(moduleVersionId, methodToken, methodVersion, reuseSpan),
                 compilation,
                 currentFrame,
+                currentSourceMethod,
                 localsBuilder.ToImmutableAndFree(),
                 inScopeHoistedLocalSlots,
                 debugInfo)
@@ -407,6 +414,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
             Return New CompilationContext(
                 Compilation,
                 _currentFrame,
+                _currentSourceMethod,
                 _locals,
                 _inScopeHoistedLocalSlots,
                 _methodDebugInfo,
