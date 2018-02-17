@@ -1103,7 +1103,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
                     Dim field = DirectCast(member, FieldSymbol)
                     Dim fieldName = field.Name
                     Dim parameterName As String = Nothing
-                    If GeneratedNames.TryParseHoistedUserVariableName(fieldName, parameterName) Then
+                    If GeneratedNames2.TryParseHoistedUserVariableName(_methodDebugInfo.Compiler, fieldName, parameterName) Then
                         parameterNamesInOrder.Add(parameterName)
                     End If
                 Next
