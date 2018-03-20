@@ -1335,8 +1335,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
                     Dim peField = TryCast(field, PEFieldSymbol)
                     Dim fieldHandle = (peField?.Handle).GetValueOrDefault()
                     If Not fieldHandle.IsNil Then
-                        ' There seems to be no public method to get the token! Use a hack to get the rid
-                        Dim token = &H4000000 + fieldHandle.GetHashCode()
+                        Dim token = System.Reflection.Metadata.Ecma335.MetadataTokens.GetToken(fieldHandle)
                         Dim suggestedName As String = Nothing
                         If hoistedVarFieldTokenToNamesMap.TryGetValue(token, suggestedName) Then
                             variableName = suggestedName

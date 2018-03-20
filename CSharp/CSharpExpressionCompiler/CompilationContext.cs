@@ -1544,8 +1544,7 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
                     var fieldHandle = peField?.Handle ?? default;
                     if (!fieldHandle.IsNil)
                     {
-                        // There seems to be no public method to get the token! Use a hack to get the rid
-                        int token = 0x04000000 + fieldHandle.GetHashCode();
+                        int token = System.Reflection.Metadata.Ecma335.MetadataTokens.GetToken(fieldHandle);
                         if (hoistedVarFieldTokenToNamesMap.TryGetValue(token, out var suggestedName))
                             variableName = suggestedName;
                     }
