@@ -4,6 +4,7 @@ using Microsoft.CodeAnalysis.CSharp.Symbols;
 using Microsoft.CodeAnalysis.ExpressionEvaluator;
 using System;
 using System.Diagnostics;
+using Roslyn.Utilities;
 
 namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
 {
@@ -11,11 +12,25 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
     {
         internal abstract Symbol ContainingSymbol { get; }
 
-        internal abstract NamedTypeSymbol Type { get; }
+        internal abstract TypeSymbol Type { get; }
 
         internal abstract DisplayClassInstance ToOtherMethod(MethodSymbol method, TypeMap typeMap);
 
         internal abstract BoundExpression ToBoundExpression(SyntaxNode syntax);
+
+        internal string GetDebuggerDisplay(ConsList<FieldSymbol> fields)
+        {
+            return GetDebuggerDisplay(GetInstanceName(), fields);
+        }
+
+        private static string GetDebuggerDisplay(string expr, ConsList<FieldSymbol> fields)
+        {
+            return fields.Any() ?
+                $"{GetDebuggerDisplay(expr, fields.Tail)}.{fields.Head.Name}" :
+                expr;
+        }
+
+        protected abstract string GetInstanceName();
     }
 
     internal sealed class DisplayClassInstanceFromLocal : DisplayClassInstance
@@ -36,9 +51,9 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
             get { return this.Local.ContainingSymbol; }
         }
 
-        internal override NamedTypeSymbol Type
+        internal override TypeSymbol Type
         {
-            get { return (NamedTypeSymbol)this.Local.Type; }
+            get { return this.Local.Type; }
         }
 
         internal override DisplayClassInstance ToOtherMethod(MethodSymbol method, TypeMap typeMap)
@@ -51,6 +66,8 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
         {
             return new BoundLocal(syntax, this.Local, constantValueOpt: null, type: this.Local.Type) { WasCompilerGenerated = true };
         }
+
+        protected override string GetInstanceName() => Local.Name;
     }
 
     internal sealed class DisplayClassInstanceFromParameter : DisplayClassInstance
@@ -74,9 +91,9 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
             get { return this.Parameter.ContainingSymbol; }
         }
 
-        internal override NamedTypeSymbol Type
+        internal override TypeSymbol Type
         {
-            get { return (NamedTypeSymbol)this.Parameter.Type; }
+            get { return this.Parameter.Type; }
         }
 
         internal override DisplayClassInstance ToOtherMethod(MethodSymbol method, TypeMap typeMap)
@@ -93,5 +110,7 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
         {
             return new BoundParameter(syntax, this.Parameter) { WasCompilerGenerated = true };
         }
+
+        protected override string GetInstanceName() => Parameter.Name;
     }
 }

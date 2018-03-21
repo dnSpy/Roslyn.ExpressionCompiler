@@ -20,6 +20,7 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
     /// A field in a display class that represents a captured
     /// variable: either a local, a parameter, or "this".
     /// </summary>
+    [DebuggerDisplay("{GetDebuggerDisplay(), nq}")]
     internal sealed class DisplayClassVariable
     {
         readonly CompilerKind compiler;
@@ -76,6 +77,11 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
         {
             var otherFields = SubstituteFields(this.compiler, this.DisplayClassFields, typeMap);
             return new DisplayClassVariable(this.compiler, this.Name, this.Kind, otherInstance, otherFields);
+        }
+
+        private string GetDebuggerDisplay()
+        {
+            return DisplayClassInstance.GetDebuggerDisplay(DisplayClassFields);
         }
 
         private static ConsList<FieldSymbol> SubstituteFields(CompilerKind compiler, ConsList<FieldSymbol> fields, TypeMap typeMap)

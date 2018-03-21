@@ -51,6 +51,13 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator
             DkmClrAppDomain appDomain, 
             ImmutableArray<MetadataBlock> previousMetadataBlocks)
         {
+            // Add a dummy data item to the appdomain to add it to the disposal queue when the debugged process is shutting down.
+            // This should prevent from attempts to use the Metadata pointer for dead debugged processes.
+            if (appDomain.GetDataItem<AppDomainLifetimeDataItem>() == null)
+            {
+                appDomain.SetDataItem(DkmDataCreationDisposition.CreateNew, new AppDomainLifetimeDataItem());
+            }
+
             var builder = ArrayBuilder<MetadataBlock>.GetInstance();
             IntPtr ptr;
             uint size;
@@ -352,6 +359,10 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator
                 this.MetadataContext = metadataContext;
             }
         }
+        */
+
+        /*
+        private sealed class AppDomainLifetimeDataItem : DkmDataItem { }
         */
     }
 }

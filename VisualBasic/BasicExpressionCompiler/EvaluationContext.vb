@@ -474,6 +474,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
                         metadataOnly:=False,
                         isDeterministic:=False,
                         emitTestCoverageData:=False,
+                        privateKeyOpt:=Nothing,
                         cancellationToken:=Nothing)
 
                 If diagnostics.HasAnyErrors() Then
@@ -535,6 +536,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
                         metadataOnly:=False,
                         isDeterministic:=False,
                         emitTestCoverageData:=False,
+                        privateKeyOpt:=Nothing,
                         cancellationToken:=Nothing)
 
                 If diagnostics.HasAnyErrors() Then
@@ -602,6 +604,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator
                         metadataOnly:=False,
                         isDeterministic:=False,
                         emitTestCoverageData:=False,
+                        privateKeyOpt:=Nothing,
                         cancellationToken:=Nothing)
 
                     If Not diagnostics.HasAnyErrors() Then
