@@ -8,7 +8,7 @@
 //  - Update this file if needed (is there a new GeneratedNameKind, etc)
 //  - Check C# EC code for refs to GeneratedNames class and redirect to GeneratedNames2 class
 //  - Check VB EC code for refs to GeneratedNames class and redirect to GeneratedNames2 class
-//  - Check VB EC code for refs to StringConstants use methods in this file instead
+//  - Check VB EC code for refs to StringConstants and use methods in this file instead
 
 using System;
 using System.Diagnostics;
@@ -722,7 +722,7 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator
                             case 'p': kind = CommonGeneratedNameKind.DynamicCallSiteField; break;
                             case '6': kind = CommonGeneratedNameKind.Deprecated_OuterscopeLocals; break;
                             case 'a': kind = CommonGeneratedNameKind.Deprecated_IteratorInstance; break;
-                            case 'g': kind = CommonGeneratedNameKind.Deprecated_InitializerLocal; break;
+                            case 'g': kind = CommonGeneratedNameKind.LocalFunction; break;// Also Deprecated_InitializerLocal
                             case 'j': kind = CommonGeneratedNameKind.Deprecated_AnonymousTypeTypeParameter; break;
                             case 'q': kind = CommonGeneratedNameKind.Deprecated_DynamicDelegate; break;
                             case 'r': kind = CommonGeneratedNameKind.Deprecated_ComrefCallLocal; break;
