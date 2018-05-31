@@ -84,6 +84,10 @@
     <Compile Include="MethodContextReuseConstraints.cs" />
     <Compile Include="PseudoVariableUtilities.cs" />
     <Compile Include="MetadataUtilities_Exceptions.cs" />
+    <Compile Include="EEMetadataReferenceResolver.cs" />
+    <Compile Include="MakeAssemblyReferencesKind.cs" />
+    <Compile Include="MetadataContext.cs" />
+    <Compile Include="MetadataContextId.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\WindowsProxy.winmd" />

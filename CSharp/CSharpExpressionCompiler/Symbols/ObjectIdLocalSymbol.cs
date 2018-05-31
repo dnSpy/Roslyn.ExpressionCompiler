@@ -23,7 +23,7 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
         internal override LocalAndMethodKind LocalAndMethodKind { get; }
         internal override int Index => _index;
 
-        internal override bool IsWritable
+        internal override bool IsWritableVariable
         {
             get { return _isWritable; }
         }
