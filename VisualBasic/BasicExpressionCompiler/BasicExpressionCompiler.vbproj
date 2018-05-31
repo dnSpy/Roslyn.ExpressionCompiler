@@ -126,9 +126,6 @@
     <Compile Include="VisualBasicLanguageInstructionDecoder.vb" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="project.json" />
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="Resources.resx">
       <CustomToolNamespace>Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator</CustomToolNamespace>
       <Generator>ResXFileCodeGenerator</Generator>

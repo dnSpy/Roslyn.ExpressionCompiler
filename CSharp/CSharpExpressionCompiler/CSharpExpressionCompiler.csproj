@@ -100,9 +100,6 @@
     <Compile Include="TypeParameterChecker.cs" />
     <VsdConfigXml Include="CSharpExpressionCompiler.vsdconfigxml" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="project.json" />
-  </ItemGroup>
   <Import Project="$(MSBuildProjectDirectory)\..\..\..\..\..\Build\MakeEverythingPublic\MakeEverythingPublic.tasks" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
