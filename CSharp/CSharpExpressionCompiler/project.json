@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "Microsoft.CodeAnalysis.CSharp": "2.8.0"
+    "Microsoft.CodeAnalysis.CSharp": "2.8.2"
   },
   "frameworks": {
     "net471": {}
