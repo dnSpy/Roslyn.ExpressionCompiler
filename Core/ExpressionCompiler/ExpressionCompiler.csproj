@@ -19,6 +19,7 @@
     <MakeEverythingPublicAssemblies>Microsoft.CodeAnalysis</MakeEverythingPublicAssemblies>
     <MakeEverythingPublicIVTString>$(AssemblyName)</MakeEverythingPublicIVTString>
     <DefineConstants>$(DefineConstants);EXPRESSIONCOMPILER</DefineConstants>
+    <CodeAnalysisRuleSet>..\..\..\..\..\DisableBuggyRoslynAnalyzerThatPreventsCompilingThisProjectRemoveWhenItsNotBuggyAnymore.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
