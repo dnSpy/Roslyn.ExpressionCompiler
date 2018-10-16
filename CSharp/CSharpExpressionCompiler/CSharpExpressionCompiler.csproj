@@ -1,103 +1,35 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="..\..\..\..\..\DnSpyCommon.props" />
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{DAD4C898-6CFF-485E-AB51-8D7E56F4C672}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator</RootNamespace>
     <AssemblyName>Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator</AssemblyName>
-    <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
     <SignAssembly>True</SignAssembly>
     <AssemblyOriginatorKeyFile>..\..\..\..\..\dnSpy.snk</AssemblyOriginatorKeyFile>
-    <Features>strict</Features>
-    <LangVersion>latest</LangVersion>
     <MakeEverythingPublicAssemblies>Microsoft.CodeAnalysis;Microsoft.CodeAnalysis.CSharp</MakeEverythingPublicAssemblies>
     <MakeEverythingPublicIVTString>$(AssemblyName)</MakeEverythingPublicIVTString>
     <CodeAnalysisRuleSet>..\..\..\..\..\DisableBuggyRoslynAnalyzerThatPreventsCompilingThisProjectRemoveWhenItsNotBuggyAnymore.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>portable</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>portable</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <ItemGroup>
-    <Compile Include="CommonGeneratedNameKindExtensions.cs" />
-    <Compile Include="GeneratedNames2.cs" />
-    <Compile Include="MakeEverythingPublic.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <AppDesigner Include="Properties\" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\Core\ExpressionCompiler\ExpressionCompiler.csproj">
-      <Project>{255c3fec-91b5-4e11-aaf8-9b102ea57634}</Project>
-      <Name>ExpressionCompiler</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Binders\EEMethodBinder.cs" />
-    <Compile Include="Binders\WithTypeArgumentsBinder.cs" />
-    <Compile Include="Binders\PlaceholderLocalBinder.cs" />
-    <Compile Include="CSharpCompileResult.cs" />
-    <Compile Include="CSharpEESymbolProvider.cs" />
-    <Compile Include="CSharpLocalAndMethod.cs" />
-    <Compile Include="CompilationContext.cs" />
-    <Compile Include="CompilationExtensions.cs" />
-    <None Include="CSharpLanguageInstructionDecoder.cs" />
-    <Compile Include="CSharpMetadataContext.cs" />
-    <None Include="CSharpExpressionCompiler.cs" />
-    <None Include="CSharpFrameDecoder.cs" />
-    <None Include="CSharpInstructionDecoder.cs" />
-    <Compile Include="EEAssemblyBuilder.cs" />
-    <Compile Include="EETypeNameDecoder.cs" />
-    <Compile Include="EvaluationContext.cs" />
-    <Compile Include="Rewriters\CapturedVariableRewriter.cs" />
-    <Compile Include="Rewriters\LocalDeclarationRewriter.cs" />
-    <Compile Include="Rewriters\MayHaveSideEffectsVisitor.cs" />
-    <Compile Include="Rewriters\PlaceholderLocalRewriter.cs" />
-    <Compile Include="SymbolExtensions.cs" />
-    <Compile Include="Symbols\DisplayClassInstance.cs" />
-    <Compile Include="Symbols\DisplayClassVariable.cs" />
-    <Compile Include="Symbols\EEDisplayClassFieldLocalSymbol.cs" />
-    <Compile Include="Symbols\EELocalConstantSymbol.cs" />
-    <Compile Include="Symbols\EELocalSymbol.cs" />
-    <Compile Include="Symbols\EELocalSymbolBase.cs" />
-    <Compile Include="Symbols\EEConstructorSymbol.cs" />
-    <Compile Include="Symbols\EEMethodSymbol.cs" />
-    <Compile Include="Symbols\EENamedTypeSymbol.cs" />
-    <Compile Include="Symbols\EETypeParameterSymbol.cs" />
-    <Compile Include="Symbols\ObjectAddressLocalSymbol.cs" />
-    <Compile Include="Symbols\ObjectIdLocalSymbol.cs" />
-    <Compile Include="Symbols\PlaceholderLocalSymbol.cs" />
-    <Compile Include="Symbols\PlaceholderMethodSymbol.cs" />
-    <Compile Include="Symbols\ExceptionLocalSymbol.cs" />
-    <Compile Include="Symbols\RenamedParametersMethodSymbol.cs" />
-    <Compile Include="Symbols\ReturnValueLocalSymbol.cs" />
-    <Compile Include="Symbols\SimpleTypeParameterSymbol.cs" />
-    <Compile Include="Symbols\SynthesizedContextMethodSymbol.cs" />
-    <Compile Include="SyntaxHelpers.cs" />
-    <Compile Include="TypeParameterChecker.cs" />
-    <VsdConfigXml Include="CSharpExpressionCompiler.vsdconfigxml" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="project.json" />
-  </ItemGroup>
+
   <Import Project="$(MSBuildProjectDirectory)\..\..\..\..\..\Build\MakeEverythingPublic\MakeEverythingPublic.tasks" />
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Core\ExpressionCompiler\ExpressionCompiler.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="CSharpLanguageInstructionDecoder.cs" />
+    <None Include="CSharpLanguageInstructionDecoder.cs" />
+    <Compile Remove="CSharpExpressionCompiler.cs" />
+    <None Include="CSharpExpressionCompiler.cs" />
+    <Compile Remove="CSharpFrameDecoder.cs" />
+    <None Include="CSharpFrameDecoder.cs" />
+    <Compile Remove="CSharpInstructionDecoder.cs" />
+    <None Include="CSharpInstructionDecoder.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="$(RoslynVersion)" />
+  </ItemGroup>
+
 </Project>
