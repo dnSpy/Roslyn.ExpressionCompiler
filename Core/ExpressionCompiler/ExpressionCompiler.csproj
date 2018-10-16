@@ -1,105 +1,30 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="..\..\..\..\..\DnSpyCommon.props" />
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{255C3FEC-91B5-4E11-AAF8-9B102EA57634}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Microsoft.CodeAnalysis.ExpressionEvaluator</RootNamespace>
     <AssemblyName>Microsoft.CodeAnalysis.ExpressionEvaluator</AssemblyName>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
     <SignAssembly>True</SignAssembly>
     <AssemblyOriginatorKeyFile>..\..\..\..\..\dnSpy.snk</AssemblyOriginatorKeyFile>
-    <Features>strict</Features>
-    <LangVersion>latest</LangVersion>
     <MakeEverythingPublicAssemblies>Microsoft.CodeAnalysis</MakeEverythingPublicAssemblies>
     <MakeEverythingPublicIVTString>$(AssemblyName)</MakeEverythingPublicIVTString>
     <DefineConstants>$(DefineConstants);EXPRESSIONCOMPILER</DefineConstants>
+    <CodeAnalysisRuleSet>..\..\..\..\..\DisableBuggyRoslynAnalyzerThatPreventsCompilingThisProjectRemoveWhenItsNotBuggyAnymore.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>portable</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>portable</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Xml" />
-  </ItemGroup>
+
+  <Import Project="$(MSBuildProjectDirectory)\..\..\..\..\..\Build\MakeEverythingPublic\MakeEverythingPublic.tasks" />
+
   <ItemGroup Label="Linked Files">
-    <AppDesigner Include="Properties\" />
-    <Compile Include="Properties\AssemblyInfo.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="..\..\Test\PdbUtilities\Shared\DateTimeUtilities.cs">
-      <Link>Shared\DateTimeUtilities.cs</Link>
-    </Compile>
-    <Compile Include="AssemblyReaders.cs" />
-    <Compile Include="AssemblyReference.cs" />
-    <Compile Include="CustomTypeInfo.cs" />
-    <Compile Include="DebuggerDiagnosticFormatter.cs" />
-    <Compile Include="DkmExceptionUtilities.cs" />
-    <Compile Include="DynamicFlagsCustomTypeInfo.cs" />
-    <Compile Include="EESymbolProvider.cs" />
-    <Compile Include="ILSpan.cs" />
-    <Compile Include="NotImplementedMetadataException.cs" />
-    <Compile Include="PDB\MethodDebugInfo.Native.cs" />
-    <Compile Include="PDB\MethodDebugInfo.Portable.cs" />
-    <Compile Include="Placeholders.cs" />
-    <Compile Include="ImmutableArrayExtensions.cs" />
-    <Compile Include="CompileResult.cs" />
-    <Compile Include="FrameDecoder.cs" />
-    <Compile Include="InstructionDecoder.cs" />
-    <Compile Include="LanguageInstructionDecoder.cs" />
-    <Compile Include="PDB\HoisedLocalScopeRecord.cs" />
-    <Compile Include="PDB\ExternAliasRecord.cs" />
-    <Compile Include="PDB\MethodDebugInfo.cs" />
-    <Compile Include="PDB\ImportRecord.cs" />
-    <Compile Include="PDB\PdbHelpers.cs" />
-    <Compile Include="ResultProperties.cs" />
-    <Compile Include="ExpressionCompilerUtilities.cs" />
-    <Compile Include="ExpressionEvaluatorFatalError.cs" />
-    <Compile Include="EvaluationContextBase.cs" />
-    <Compile Include="ExpressionCompiler.cs" />
-    <Compile Include="ExpressionCompilerConstants.cs" />
-    <Compile Include="DkmUtilities.cs" />
-    <Compile Include="LocalAndMethod.cs" />
-    <Compile Include="MetadataBlock.cs" />
-    <Compile Include="MetadataUtilities.cs" />
-    <Compile Include="AbstractTypeParameterChecker.cs" />
-    <Compile Include="MethodContextReuseConstraints.cs" />
-    <Compile Include="PseudoVariableUtilities.cs" />
-    <Compile Include="MetadataUtilities_Exceptions.cs" />
-    <Compile Include="EEMetadataReferenceResolver.cs" />
-    <Compile Include="MakeAssemblyReferencesKind.cs" />
-    <Compile Include="MetadataContext.cs" />
-    <Compile Include="MetadataContextId.cs" />
+    <Compile Include="..\..\Test\PdbUtilities\Shared\DateTimeUtilities.cs" Link="Shared\DateTimeUtilities.cs" />
   </ItemGroup>
+
   <ItemGroup>
     <EmbeddedResource Include="Resources\WindowsProxy.winmd" />
   </ItemGroup>
-  <Import Project="$(MSBuildProjectDirectory)\..\..\..\..\..\Build\MakeEverythingPublic\MakeEverythingPublic.tasks" />
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis" Version="$(RoslynVersion)" />
+  </ItemGroup>
+
 </Project>
