@@ -8,7 +8,6 @@
     <AssemblyOriginatorKeyFile>..\..\..\..\..\dnSpy.snk</AssemblyOriginatorKeyFile>
     <MakeEverythingPublicAssemblies>Microsoft.CodeAnalysis;Microsoft.CodeAnalysis.CSharp</MakeEverythingPublicAssemblies>
     <MakeEverythingPublicIVTString>$(AssemblyName)</MakeEverythingPublicIVTString>
-    <CodeAnalysisRuleSet>..\..\..\..\..\DisableBuggyRoslynAnalyzerThatPreventsCompilingThisProjectRemoveWhenItsNotBuggyAnymore.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
 
   <Import Project="$(MSBuildProjectDirectory)\..\..\..\..\..\Build\MakeEverythingPublic\MakeEverythingPublic.tasks" />

@@ -10,7 +10,6 @@
     <MakeEverythingPublicAssemblies>Microsoft.CodeAnalysis</MakeEverythingPublicAssemblies>
     <MakeEverythingPublicIVTString>$(AssemblyName)</MakeEverythingPublicIVTString>
     <DefineConstants>$(DefineConstants);EXPRESSIONCOMPILER</DefineConstants>
-    <CodeAnalysisRuleSet>..\..\..\..\..\DisableBuggyRoslynAnalyzerThatPreventsCompilingThisProjectRemoveWhenItsNotBuggyAnymore.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
 
   <Import Project="$(MSBuildProjectDirectory)\..\..\..\..\..\Build\MakeEverythingPublic\MakeEverythingPublic.tasks" />
